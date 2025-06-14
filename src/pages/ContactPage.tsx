@@ -5,7 +5,6 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Mail, MapPin, Phone } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 const ContactPage = () => {
@@ -43,46 +42,12 @@ const ContactPage = () => {
 
   return (
     <div className="container mx-auto py-16 px-6">
-      <div className="max-w-4xl mx-auto">
+      <div className="max-w-2xl mx-auto">
         <div className="text-center mb-12">
           <h1 className="text-4xl font-bold mb-4 text-primary">Get in Touch</h1>
-          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+          <p className="text-lg text-muted-foreground">
             Ready to join our mission? Whether you're an investor, potential co-founder, or just want to learn more about Urban Roots, we'd love to hear from you.
           </p>
-        </div>
-
-        <div className="grid md:grid-cols-3 gap-8 mb-12">
-          <Card>
-            <CardHeader className="text-center">
-              <Mail className="h-8 w-8 text-primary mx-auto mb-2" />
-              <CardTitle>Email Us</CardTitle>
-            </CardHeader>
-            <CardContent className="text-center">
-              <p className="text-muted-foreground">hello@urbanroots.com</p>
-              <p className="text-muted-foreground">investors@urbanroots.com</p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="text-center">
-              <Phone className="h-8 w-8 text-primary mx-auto mb-2" />
-              <CardTitle>Call Us</CardTitle>
-            </CardHeader>
-            <CardContent className="text-center">
-              <p className="text-muted-foreground">+1 (555) 123-4567</p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="text-center">
-              <MapPin className="h-8 w-8 text-primary mx-auto mb-2" />
-              <CardTitle>Visit Us</CardTitle>
-            </CardHeader>
-            <CardContent className="text-center">
-              <p className="text-muted-foreground">San Francisco, CA</p>
-              <p className="text-muted-foreground">USA</p>
-            </CardContent>
-          </Card>
         </div>
 
         <Card>
