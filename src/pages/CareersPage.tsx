@@ -2,10 +2,22 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { MapPin, Clock, DollarSign, Users, Heart, TrendingUp } from "lucide-react";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { MapPin, Clock, DollarSign, Users, Heart, TrendingUp, ChevronDown, ChevronUp } from "lucide-react";
 import { Link } from "react-router-dom";
+import { useState } from "react";
 
 const CareersPage = () => {
+  const [expandedJobs, setExpandedJobs] = useState<number[]>([]);
+
+  const toggleJobExpansion = (jobId: number) => {
+    setExpandedJobs(prev => 
+      prev.includes(jobId) 
+        ? prev.filter(id => id !== jobId)
+        : [...prev, jobId]
+    );
+  };
+
   const jobListings = [
     {
       id: 1,
@@ -14,6 +26,7 @@ const CareersPage = () => {
       location: "Alberta, Canada / Remote-first",
       type: "Full-time",
       salary: "CAD $70K - $135K",
+      shortDescription: "Join our engineering team to build sustainable agriculture technology with React, Node.js, and IoT systems.",
       description: "Join our engineering team to build the future of sustainable agriculture technology. Work with React, Node.js, and IoT systems.",
       requirements: [
         "3+ years of full-stack development experience",
@@ -30,6 +43,7 @@ const CareersPage = () => {
       location: "Alberta, Canada / Travelling",
       type: "Full-time",
       salary: "CAD $60K - $95K",
+      shortDescription: "Lead agricultural research and work with farming communities. Travelling role based in Alberta.",
       description: "Lead our agricultural research and work directly with farming communities to develop and validate our solutions. This is a travelling role based in Alberta, Canada with frequent fieldwork.",
       requirements: [
         "Bachelor's or Master's in Agronomy, Agriculture, or related field",
@@ -47,6 +61,7 @@ const CareersPage = () => {
       location: "Alberta, Canada / Remote-first",
       type: "Full-time",
       salary: "CAD $45K - $65K",
+      shortDescription: "Support our founding team and help manage day-to-day operations as we scale.",
       description: "Support our founding team and help manage day-to-day operations as we scale our impact.",
       requirements: [
         "2+ years of executive assistant experience",
@@ -174,15 +189,34 @@ const CareersPage = () => {
                   </div>
                 </CardHeader>
                 <CardContent>
-                  <CardDescription className="mb-4">{job.description}</CardDescription>
-                  <div>
-                    <h4 className="font-semibold mb-2">Requirements:</h4>
-                    <ul className="list-disc list-inside space-y-1 text-sm text-muted-foreground">
-                      {job.requirements.map((req, index) => (
-                        <li key={index}>{req}</li>
-                      ))}
-                    </ul>
-                  </div>
+                  <CardDescription className="mb-4">{job.shortDescription}</CardDescription>
+                  
+                  <Collapsible open={expandedJobs.includes(job.id)} onOpenChange={() => toggleJobExpansion(job.id)}>
+                    <CollapsibleTrigger asChild>
+                      <Button variant="ghost" size="sm" className="p-0 h-auto font-normal text-primary hover:text-primary/80">
+                        {expandedJobs.includes(job.id) ? (
+                          <>
+                            Read Less <ChevronUp className="h-4 w-4 ml-1" />
+                          </>
+                        ) : (
+                          <>
+                            Read More <ChevronDown className="h-4 w-4 ml-1" />
+                          </>
+                        )}
+                      </Button>
+                    </CollapsibleTrigger>
+                    <CollapsibleContent className="mt-4">
+                      <CardDescription className="mb-4">{job.description}</CardDescription>
+                      <div>
+                        <h4 className="font-semibold mb-2">Requirements:</h4>
+                        <ul className="list-disc list-inside space-y-1 text-sm text-muted-foreground">
+                          {job.requirements.map((req, index) => (
+                            <li key={index}>{req}</li>
+                          ))}
+                        </ul>
+                      </div>
+                    </CollapsibleContent>
+                  </Collapsible>
                 </CardContent>
               </Card>
             ))}
@@ -254,4 +288,3 @@ const CareersPage = () => {
 };
 
 export default CareersPage;
-
