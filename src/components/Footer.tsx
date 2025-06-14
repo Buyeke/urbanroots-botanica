@@ -3,8 +3,59 @@ import { Link } from "react-router-dom";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Leaf, Facebook, Twitter, Instagram, Linkedin } from "lucide-react";
+import { useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast"; // Shadcn toast
 
 const Footer = () => {
+  const [email, setEmail] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const { toast } = useToast();
+
+  const handleSubscribe = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (!email) {
+      toast({
+        title: "Email Required",
+        description: "Please enter your email address to subscribe.",
+        variant: "destructive",
+      });
+      return;
+    }
+    setIsLoading(true);
+
+    try {
+      const { data, error } = await supabase.functions.invoke("subscribe-newsletter", {
+        body: { email },
+      });
+
+      if (error) {
+        console.error("Subscription error:", error);
+        toast({
+          title: "Subscription Failed",
+          description: error.message || "Could not subscribe. Please try again.",
+          variant: "destructive",
+        });
+      } else {
+        console.log("Subscription success data:", data);
+        toast({
+          title: "Subscribed!",
+          description: data.message || "You've successfully subscribed to our newsletter.",
+        });
+        setEmail(""); // Clear input on success
+      }
+    } catch (err: any) {
+      console.error("Unexpected error during subscription:", err);
+      toast({
+        title: "Error",
+        description: "An unexpected error occurred. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <footer
       className="bg-[hsl(var(--sidebar-background))] text-[hsl(var(--sidebar-foreground))] py-6 px-6 md:px-10 transition-colors duration-300"
@@ -45,10 +96,19 @@ const Footer = () => {
         <div>
           <h3 className="font-semibold mb-2 text-base">Newsletter</h3>
           <p className="text-xs mb-1 text-[hsl(var(--muted-foreground))]">Stay updated with our latest news and offers.</p>
-          <div className="flex gap-2 mb-4">
-            <Input type="email" placeholder="Enter your email" className="bg-background h-8 text-xs px-2" />
-            <Button type="submit" variant="default" className="h-8 text-xs px-3">Subscribe</Button>
-          </div>
+          <form onSubmit={handleSubscribe} className="flex gap-2 mb-4">
+            <Input
+              type="email"
+              placeholder="Enter your email"
+              className="bg-background h-8 text-xs px-2"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              disabled={isLoading}
+            />
+            <Button type="submit" variant="default" className="h-8 text-xs px-3" disabled={isLoading}>
+              {isLoading ? "Subscribing..." : "Subscribe"}
+            </Button>
+          </form>
           <div>
             <h3 className="font-semibold mb-2 text-base">Follow Us</h3>
             <div className="flex space-x-3">
@@ -86,3 +146,4 @@ const Footer = () => {
 };
 
 export default Footer;
+

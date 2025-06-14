@@ -1,1 +1,43 @@
-project_id = "hwfclxjhrcqnqfwmlmpa"
+
+# supabase/config.toml
+project_id = "hwfclxjhrcqnqfwmlmpa" # THIS IS THE REAL PROJECT ID, DO NOT CHANGE IT.
+
+[api]
+enabled_extensions = ["pg_net"] # Ensure pg_net is enabled if you use it elsewhere
+
+[auth]
+# Enable email and phone authentication by default
+enable_email_autolink = true
+enable_phone_autolink = true
+# You can disable specific providers if you don't need them
+# enable_email_provider = true
+# enable_phone_provider = true
+
+[functions.subscribe-newsletter]
+# Add any specific configuration for your function here if needed
+# For example, if it doesn't require JWT verification for some reason:
+# verify_jwt = false
+
+# Example of another function (if you have one)
+# [functions.another_function_name]
+# verify_jwt = true
+
+[db]
+# Schemas to include in the generated types
+# By default, the "public" schema is included
+schemas = ["public", "storage"] # Add other schemas if needed
+
+[storage]
+# File size limit for authenticated and unauthenticated users
+# file_size_limit = "50MiB"
+
+[realtime]
+# Define which tables should broadcast changes
+# enabled = true
+# publications = ["supabase_realtime"] # Default publication, add your tables here
+#
+# Example:
+# [[realtime.tables]]
+# table = "my_table"
+# schema = "public" # Optional, defaults to "public"
+
