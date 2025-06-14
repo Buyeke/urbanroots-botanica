@@ -94,19 +94,19 @@ const Index = () => {
           
           <div className="grid md:grid-cols-4 gap-8 text-center">
             <div>
-              <div className="text-4xl font-bold text-primary mb-2">500+</div>
+              <div className="text-4xl font-bold text-primary mb-2">50+</div>
               <div className="text-muted-foreground">Women Trained</div>
             </div>
             <div>
-              <div className="text-4xl font-bold text-primary mb-2">25+</div>
+              <div className="text-4xl font-bold text-primary mb-2">20+</div>
               <div className="text-muted-foreground">Farming Partners</div>
             </div>
             <div>
-              <div className="text-4xl font-bold text-primary mb-2">$50K+</div>
+              <div className="text-4xl font-bold text-primary mb-2">$0</div>
               <div className="text-muted-foreground">Donated to Training</div>
             </div>
             <div>
-              <div className="text-4xl font-bold text-primary mb-2">95%</div>
+              <div className="text-4xl font-bold text-primary mb-2">65%</div>
               <div className="text-muted-foreground">Crop Yield Improvement</div>
             </div>
           </div>

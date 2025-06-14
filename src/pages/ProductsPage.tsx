@@ -179,12 +179,12 @@ const ProductsPage = () => {
             <Card>
               <CardContent className="pt-6">
                 <blockquote className="text-muted-foreground mb-4">
-                  "Urban Roots has transformed how I manage my farm. The real-time insights have helped me reduce water usage while increasing my harvest yield."
+                  "Urban Roots has transformed how I manage my farm. The real-time insights have helped me reduce water usage while increasing my harvest yield significantly."
                 </blockquote>
                 <div className="flex items-center gap-2">
                   <div>
-                    <div className="font-semibold">Maria Rodriguez</div>
-                    <div className="text-sm text-muted-foreground">Small-scale farmer, California</div>
+                    <div className="font-semibold">Rebekah Moraa</div>
+                    <div className="text-sm text-muted-foreground">Small-scale farmer, Mwakirunge</div>
                   </div>
                 </div>
               </CardContent>
@@ -197,8 +197,8 @@ const ProductsPage = () => {
                 </blockquote>
                 <div className="flex items-center gap-2">
                   <div>
-                    <div className="font-semibold">James Chen</div>
-                    <div className="text-sm text-muted-foreground">Cooperative Manager, Oregon</div>
+                    <div className="font-semibold">Abdi Mkonge</div>
+                    <div className="text-sm text-muted-foreground">Small-scale farmer, Mombasa</div>
                   </div>
                 </div>
               </CardContent>
@@ -207,12 +207,12 @@ const ProductsPage = () => {
             <Card>
               <CardContent className="pt-6">
                 <blockquote className="text-muted-foreground mb-4">
-                  "As part of their training program, I learned modern farming techniques that doubled my income. Urban Roots truly empowers women in agriculture."
+                  "As part of their training program, I learned modern farming techniques that have opened up new opportunities for me. Urban Roots truly empowers women in agriculture."
                 </blockquote>
                 <div className="flex items-center gap-2">
                   <div>
-                    <div className="font-semibold">Aisha Patel</div>
-                    <div className="text-sm text-muted-foreground">Program Graduate, Texas</div>
+                    <div className="font-semibold">Aisha Mdoe</div>
+                    <div className="text-sm text-muted-foreground">Trainee, Urban Roots</div>
                   </div>
                 </div>
               </CardContent>
