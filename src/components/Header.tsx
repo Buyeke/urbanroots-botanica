@@ -1,7 +1,7 @@
 
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Leaf } from "lucide-react";
+import { Leaf, Home } from "lucide-react";
 
 const Header = () => {
   return (
@@ -12,6 +12,12 @@ const Header = () => {
           <span>Urban Roots</span>
         </Link>
         <nav className="hidden md:flex gap-4 items-center">
+          <Button asChild variant="ghost">
+            <Link to="/" className="flex items-center gap-1">
+              <Home className="h-4 w-4" />
+              Home
+            </Link>
+          </Button>
           <Link to="/products" className="text-foreground hover:text-primary transition-colors">Products</Link>
           <Link to="/blog" className="text-foreground hover:text-primary transition-colors">Blog</Link>
           <Link to="/careers" className="text-foreground hover:text-primary transition-colors">Careers</Link>
@@ -23,8 +29,14 @@ const Header = () => {
             <Link to="/join-waitlist">Join Waitlist</Link>
           </Button>
         </nav>
-        <div className="md:hidden">
-          {/* Placeholder for mobile menu trigger */}
+        <div className="md:hidden flex gap-2">
+          {/* Mobile Home button */}
+          <Button variant="ghost" size="icon" asChild>
+            <Link to="/">
+              <Home className="h-6 w-6" />
+              <span className="sr-only">Home</span>
+            </Link>
+          </Button>
           <Button variant="ghost" size="icon">
             <Leaf className="h-6 w-6" /> {/* Replace with Menu icon later */}
           </Button>
@@ -35,4 +47,3 @@ const Header = () => {
 };
 
 export default Header;
-
