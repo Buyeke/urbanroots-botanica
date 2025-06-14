@@ -10,7 +10,7 @@ const BlogPage = () => {
       title: "The Genesis: From Idea to Impact",
       excerpt: "How Urban Roots was born from a simple observation about food security and women's empowerment in rural communities.",
       date: "January 15, 2025",
-      author: "Sarah Johnson",
+      author: "Community Team",
       readTime: "5 min read",
       category: "Company Journey",
       featured: true
@@ -20,7 +20,7 @@ const BlogPage = () => {
       title: "Understanding Our Users: Deep Dive into Farmer Needs",
       excerpt: "Months of user research revealed the real challenges facing small-scale farmers, especially women in agriculture.",
       date: "February 12, 2025",
-      author: "Dr. Priya Sharma",
+      author: "Community Team",
       readTime: "7 min read",
       category: "Research"
     },
@@ -29,7 +29,7 @@ const BlogPage = () => {
       title: "Building Our First Prototype: Lessons from the Field",
       excerpt: "The journey from concept to working prototype, including our failures, pivots, and breakthrough moments.",
       date: "March 8, 2025",
-      author: "Alex Rivera",
+      author: "Community Team",
       readTime: "6 min read",
       category: "Product Development"
     },
@@ -38,7 +38,7 @@ const BlogPage = () => {
       title: "IoT Sensors Meet Ancient Wisdom: Technology for Sustainable Farming",
       excerpt: "How we're combining cutting-edge IoT technology with traditional farming knowledge to create something revolutionary.",
       date: "April 5, 2025",
-      author: "Dr. Michael Thompson",
+      author: "Community Team",
       readTime: "8 min read",
       category: "Technology"
     },
@@ -47,7 +47,7 @@ const BlogPage = () => {
       title: "Building an MVP That Actually Helps Farmers",
       excerpt: "From prototype to minimum viable product: the technical and human challenges of creating tools that farmers love.",
       date: "May 20, 2025",
-      author: "Sarah Johnson",
+      author: "Community Team",
       readTime: "9 min read",
       category: "Product Development"
     },
