@@ -11,9 +11,9 @@ const CareersPage = () => {
       id: 1,
       title: "Full-Stack Developer",
       department: "Engineering",
-      location: "San Francisco, CA / Remote",
+      location: "Alberta, Canada / Remote-first",
       type: "Full-time",
-      salary: "$90K - $130K",
+      salary: "CAD $70K - $135K",
       description: "Join our engineering team to build the future of sustainable agriculture technology. Work with React, Node.js, and IoT systems.",
       requirements: [
         "3+ years of full-stack development experience",
@@ -27,14 +27,15 @@ const CareersPage = () => {
       id: 2,
       title: "Agronomist",
       department: "Product & Research",
-      location: "San Francisco, CA",
+      location: "Alberta, Canada / Travelling",
       type: "Full-time",
-      salary: "$70K - $95K",
-      description: "Lead our agricultural research and work directly with farming communities to develop and validate our solutions.",
+      salary: "CAD $60K - $95K",
+      description: "Lead our agricultural research and work directly with farming communities to develop and validate our solutions. This is a travelling role based in Alberta, Canada with frequent fieldwork.",
       requirements: [
         "Bachelor's or Master's in Agronomy, Agriculture, or related field",
         "5+ years of field experience in sustainable agriculture",
         "Experience working with small-scale and community farmers",
+        "Willingness and ability to travel within Alberta and beyond",
         "Knowledge of crop monitoring and soil health management"
       ],
       posted: "1 week ago"
@@ -43,9 +44,9 @@ const CareersPage = () => {
       id: 3,
       title: "Personal/Executive Assistant",
       department: "Operations",
-      location: "San Francisco, CA / Hybrid",
+      location: "Alberta, Canada / Remote-first",
       type: "Full-time",
-      salary: "$50K - $65K",
+      salary: "CAD $45K - $65K",
       description: "Support our founding team and help manage day-to-day operations as we scale our impact.",
       requirements: [
         "2+ years of executive assistant experience",
@@ -253,3 +254,4 @@ const CareersPage = () => {
 };
 
 export default CareersPage;
+
