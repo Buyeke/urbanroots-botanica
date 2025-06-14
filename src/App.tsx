@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -16,6 +15,7 @@ import DashboardPage from "./pages/DashboardPage"; // Placeholder
 import TermsPage from "./pages/TermsPage"; // Placeholder
 import PrivacyPage from "./pages/PrivacyPage"; // Placeholder
 import AboutPage from "./pages/AboutPage"; // Placeholder for footer link
+import ShopPage from "./pages/ShopPage"; // Add this import
 
 import NotFound from "./pages/NotFound";
 import Header from "@/components/Header";
@@ -42,6 +42,7 @@ const App = () => (
         <Routes>
           <Route element={<Layout />}>
             <Route path="/" element={<Index />} />
+            <Route path="/shop" element={<ShopPage />} /> {/* Added route */}
             <Route path="/products" element={<ProductsPage />} />
             <Route path="/blog" element={<BlogPage />} />
             <Route path="/careers" element={<CareersPage />} />
@@ -63,4 +64,3 @@ const App = () => (
 );
 
 export default App;
-

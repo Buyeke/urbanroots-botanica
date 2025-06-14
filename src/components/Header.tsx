@@ -1,4 +1,3 @@
-
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Leaf, Home } from "lucide-react";
@@ -18,6 +17,7 @@ const Header = () => {
               Home
             </Link>
           </Button>
+          <Link to="/shop" className="text-foreground hover:text-primary transition-colors font-semibold">Shop</Link>
           <Link to="/products" className="text-foreground hover:text-primary transition-colors">Products</Link>
           <Link to="/blog" className="text-foreground hover:text-primary transition-colors">Blog</Link>
           <Link to="/careers" className="text-foreground hover:text-primary transition-colors">Careers</Link>
