@@ -3,89 +3,88 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. */
-
+/* Vibrant, earthy, and fun color system */
 @layer base {
   :root {
-    /* Earthy and vibrant, inspired by Kenyan landscapes and Maasai adornments */
-    --background: 40 49% 95%; /* Sandy beige (savanna earth) */
-    --foreground: 30 35% 10%; /* Deep brown (soil/wood) */
+    /* Vibrant earth tones */
+    --background: 38 60% 96%;      /* Very light warm sand */
+    --foreground: 25 48% 12%;      /* Rich brown soil */
 
-    --card: 38 29% 92%; /* Warm sand */
-    --card-foreground: 30 35% 15%; /* Slightly lighter brown */
+    --card: 36 34% 92%;            /* Pale tan/sand */
+    --card-foreground: 25 34% 17%;
 
-    --popover: 36 34% 98%; /* Pale sand/off-white */
-    --popover-foreground: 30 35% 10%;
+    --popover: 37 62% 98%;         /* Lighter sand/off-white */
+    --popover-foreground: 25 48% 12%;
 
-    --primary: 120 62% 30%; /* Lush, vibrant green (tea/green countryside) */
-    --primary-foreground: 40 49% 98%; /* Very light sand for contrast */
+    --primary: 135 60% 31%;        /* Playful jade green */
+    --primary-foreground: 38 60% 96%; /* White sand contrast */
 
-    --secondary: 17 66% 54%; /* Terracotta/clay orange (savanna, pots, Maasai ornamentation) */
-    --secondary-foreground: 38 64% 98%; /* Pale clay for secondary text */
+    --secondary: 26 97% 60%;       /* Vibrant orange (sunny, fun) */
+    --secondary-foreground: 25 48% 10%;
 
-    --muted: 45 22% 85%; /* Dried grass/hay */
-    --muted-foreground: 30 17% 40%; /* Darker muted brown */
+    --muted: 80 17% 73%;           /* Soft sage green */
+    --muted-foreground: 24 18% 40%;
 
-    --accent: 43 83% 54%; /* Golden yellow (sun, savanna light, beadwork) */
-    --accent-foreground: 30 35% 17%; /* For accent text: brown */
+    --accent: 186 70% 50%;         /* Teal accent, vibrant, fun */
+    --accent-foreground: 36 38% 13%;
 
-    --destructive: 3 70% 44%; /* Maasai red, severe/call-to-action */
-    --destructive-foreground: 40 49% 98%;
+    --destructive: 9 92% 58%;      /* Coral for warning/CTA */
+    --destructive-foreground: 38 60% 96%;
 
-    --border: 30 22% 72%; /* Soft soil brown */
-    --input: 30 22% 72%;
-    --ring: 43 83% 54%; /* Gold accent for rings/focus */
+    --border: 25 20% 72%;          /* Soft tan */
+    --input: 25 20% 72%;
+    --ring: 26 97% 60%;            /* Use the sunny orange for focus rings */
 
     --radius: 0.5rem;
 
-    /* Sidebar and other neutral elements */
-    --sidebar-background: 28 27% 85%; /* Light clay */
-    --sidebar-foreground: 30 35% 25%;
-    --sidebar-primary: 120 62% 30%; /* Same green as primary */
-    --sidebar-primary-foreground: 40 49% 98%;
-    --sidebar-accent: 17 66% 54%; /* Terracotta */
-    --sidebar-accent-foreground: 38 64% 98%;
-    --sidebar-border: 30 22% 72%;
-    --sidebar-ring: 43 83% 54%;
+    /* Sidebar and UI neutrals */
+    --sidebar-background: 35 26% 88%;     /* Pale beige */
+    --sidebar-foreground: 25 34% 33%;
+    --sidebar-primary: 135 60% 31%;       
+    --sidebar-primary-foreground: 38 60% 96%;
+    --sidebar-accent: 186 70% 50%;
+    --sidebar-accent-foreground: 38 60% 96%;
+    --sidebar-border: 25 20% 72%;
+    --sidebar-ring: 26 97% 60%;
   }
 
   .dark {
-    --background: 30 35% 12%; /* Deep earthy brown */
-    --foreground: 43 83% 93%; /* Soft golden sand */
+    --background: 25 36% 14%;      /* Deep earthy brown */
+    --foreground: 38 60% 95%;      /* Sand for contrast */
 
-    --card: 30 35% 17%;
-    --card-foreground: 43 83% 93%;
+    --card: 25 36% 18%;
+    --card-foreground: 38 60% 95%;
 
-    --popover: 30 28% 15%;
-    --popover-foreground: 43 83% 93%;
+    --popover: 25 29% 19%;
+    --popover-foreground: 38 60% 95%;
 
-    --primary: 120 62% 50%; /* Bright lush green for dark mode */
-    --primary-foreground: 40 49% 9%; /* Deep brown for contrast */
+    --primary: 129 49% 40%;        /* Vibrant green in shadow */
+    --primary-foreground: 38 60% 98%;
 
-    --secondary: 17 66% 66%; /* Lighter terracotta for dark mode */
-    --secondary-foreground: 38 64% 12%;
+    --secondary: 26 97% 56%;       
+    --secondary-foreground: 30 70% 12%;
 
-    --muted: 45 22% 23%; /* Dried grass, very muted in dark */
-    --muted-foreground: 43 19% 75%;
+    --muted: 84 11% 33%;           /* Muted olive/sage */
+    --muted-foreground: 38 60% 74%;
 
-    --accent: 43 89% 60%; /* Lively gold/yellow (for dark backgrounds) */
-    --accent-foreground: 35 85% 10%;
+    --accent: 186 70% 51%;
+    --accent-foreground: 25 34% 13%;
 
-    --destructive: 3 70% 45%; /* Maasai red, still vibrant */
-    --destructive-foreground: 43 83% 93%;
+    --destructive: 9 92% 60%;      /* Coral in dark */
+    --destructive-foreground: 38 60% 98%;
 
-    --border: 30 22% 26%;
-    --input: 30 22% 27%;
-    --ring: 43 83% 54%; /* Golden accent for focus */
-    
-    --sidebar-background: 30 26% 9%; /* Dark clay */
-    --sidebar-foreground: 43 83% 93%;
-    --sidebar-primary: 120 62% 46%; /* Green for sidebar link highlights */
-    --sidebar-primary-foreground: 40 49% 99%;
-    --sidebar-accent: 17 66% 53%; /* Slightly subdued terracotta for dark */
-    --sidebar-accent-foreground: 38 64% 98%;
-    --sidebar-border: 30 22% 26%;
-    --sidebar-ring: 43 83% 54%;
+    --border: 25 20% 28%;
+    --input: 25 20% 28%;
+    --ring: 26 97% 61%;
+
+    --sidebar-background: 25 18% 10%;
+    --sidebar-foreground: 38 60% 95%;
+    --sidebar-primary: 129 49% 42%;
+    --sidebar-primary-foreground: 38 60% 97%;
+    --sidebar-accent: 186 70% 51%;
+    --sidebar-accent-foreground: 38 60% 96%;
+    --sidebar-border: 25 20% 28%;
+    --sidebar-ring: 26 97% 61%;
   }
 }
 
@@ -98,4 +97,3 @@
     @apply bg-background text-foreground;
   }
 }
-
