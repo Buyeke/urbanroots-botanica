@@ -9,9 +9,15 @@ import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 
 const producePricing: Record<string, number> = {
-  "Organic Tomatoes": 3.5, // per item price USD
+  "Organic Tomatoes": 3.5,
   "Heirloom Carrots": 2.5,
   "Seasonal Greens": 3.0,
+  "Organic Apples": 2.8,
+  "Fresh Herbs": 4.0,
+  "Organic Bell Peppers": 3.2,
+  "Sweet Potatoes": 2.2,
+  "Organic Spinach": 3.5,
+  "Zucchini": 2.0,
 };
 
 function getTotal(items: { name: string; quantity: number }[]) {

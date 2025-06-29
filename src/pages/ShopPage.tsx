@@ -3,7 +3,7 @@ import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
-import { Sprout, Store, ShoppingCart } from "lucide-react";
+import { Sprout, Store, ShoppingCart, Apple, Carrot } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 import CartSummary from "@/components/CartSummary";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
@@ -17,11 +17,41 @@ const produce = [
   {
     name: "Heirloom Carrots",
     description: "Sweet, colorful carrots rich in vitamins and flavor.",
-    icon: <Sprout className="h-8 w-8 text-primary" />,
+    icon: <Carrot className="h-8 w-8 text-primary" />,
   },
   {
     name: "Seasonal Greens",
     description: "A variety of crisp, nutrient-dense greens harvested daily.",
+    icon: <Sprout className="h-8 w-8 text-primary" />,
+  },
+  {
+    name: "Organic Apples",
+    description: "Crisp, sweet apples grown in sustainable orchards.",
+    icon: <Apple className="h-8 w-8 text-primary" />,
+  },
+  {
+    name: "Fresh Herbs",
+    description: "Aromatic basil, cilantro, and parsley grown organically.",
+    icon: <Sprout className="h-8 w-8 text-primary" />,
+  },
+  {
+    name: "Organic Bell Peppers",
+    description: "Vibrant red, yellow, and green peppers full of flavor.",
+    icon: <Sprout className="h-8 w-8 text-primary" />,
+  },
+  {
+    name: "Sweet Potatoes",
+    description: "Nutrient-rich orange sweet potatoes perfect for roasting.",
+    icon: <Sprout className="h-8 w-8 text-primary" />,
+  },
+  {
+    name: "Organic Spinach",
+    description: "Fresh, tender spinach leaves packed with iron and vitamins.",
+    icon: <Sprout className="h-8 w-8 text-primary" />,
+  },
+  {
+    name: "Zucchini",
+    description: "Fresh summer zucchini perfect for grilling or baking.",
     icon: <Sprout className="h-8 w-8 text-primary" />,
   },
 ];
@@ -33,7 +63,7 @@ const ShopPage = () => {
 
   return (
     <div className="min-h-screen py-12 px-4 md:px-10 bg-gradient-to-br from-background to-secondary/10">
-      <div className="container mx-auto max-w-3xl">
+      <div className="container mx-auto max-w-6xl">
         <div className="text-center mb-10">
           <Store className="mx-auto h-10 w-10 text-primary mb-2" />
           <h1 className="text-4xl font-bold mb-3 text-primary">Shop Organic Produce</h1>
