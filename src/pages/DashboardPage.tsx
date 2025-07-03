@@ -4,16 +4,32 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { BarChart3, Leaf, Users, TrendingUp, Bell, Settings, LogOut, Package, MessageCircle } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "@/hooks/useAuth";
+import { useToast } from "@/hooks/use-toast";
 
 const DashboardPage = () => {
-  // Mock data - in a real app, this would come from your backend
+  const { user, signOut } = useAuth();
+  const navigate = useNavigate();
+  const { toast } = useToast();
+
+  const handleSignOut = async () => {
+    await signOut();
+    toast({
+      title: "Signed out",
+      description: "You have been successfully signed out.",
+    });
+    navigate('/');
+  };
+
+  // User-specific farm data
   const farmData = {
-    name: "Green Valley Farm",
-    location: "Sonoma County, CA",
+    name: user?.user_metadata?.farm_name || "Your Farm",
+    location: user?.user_metadata?.location || "Your Location",
     size: "15 acres",
     crops: ["Tomatoes", "Lettuce", "Carrots"],
-    lastUpdate: "2 hours ago"
+    lastUpdate: "2 hours ago",
+    ownerName: `${user?.user_metadata?.first_name || 'Farmer'} ${user?.user_metadata?.last_name || ''}`.trim()
   };
 
   const insights = [
@@ -65,7 +81,7 @@ const DashboardPage = () => {
       <div className="bg-background border-b px-6 py-4">
         <div className="container mx-auto flex justify-between items-center">
           <div>
-            <h1 className="text-2xl font-bold text-primary">Farm Dashboard</h1>
+            <h1 className="text-2xl font-bold text-primary">Welcome back, {farmData.ownerName}!</h1>
             <p className="text-muted-foreground">{farmData.name} • {farmData.location}</p>
           </div>
           <div className="flex items-center gap-4">
@@ -75,7 +91,7 @@ const DashboardPage = () => {
             <Button variant="ghost" size="icon">
               <Settings className="h-5 w-5" />
             </Button>
-            <Button variant="outline" size="sm">
+            <Button variant="outline" size="sm" onClick={handleSignOut}>
               <LogOut className="h-4 w-4 mr-2" />
               Logout
             </Button>
