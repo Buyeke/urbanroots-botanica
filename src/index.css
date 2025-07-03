@@ -6,36 +6,42 @@
 /* Vibrant, earthy, and fun color system */
 @layer base {
   :root {
-    /* Vibrant earth tones */
-    --background: 38 60% 96%;      /* Very light warm sand */
-    --foreground: 25 48% 12%;      /* Rich brown soil */
+    /* Earth-toned farmer dashboard colors */
+    --background: 30 15% 96%;      /* Cream background */
+    --foreground: 20 8% 15%;       /* Deep earth brown */
 
-    --card: 36 34% 92%;            /* Pale tan/sand */
-    --card-foreground: 25 34% 17%;
+    --card: 32 18% 92%;            /* Light earth tone */
+    --card-foreground: 20 12% 20%;
 
-    --popover: 37 62% 98%;         /* Lighter sand/off-white */
-    --popover-foreground: 25 48% 12%;
+    --popover: 30 20% 98%;         /* Off-white */
+    --popover-foreground: 20 8% 15%;
 
-    --primary: 135 60% 31%;        /* Playful jade green */
-    --primary-foreground: 38 60% 96%; /* White sand contrast */
+    --primary: 95 38% 35%;         /* Farm green */
+    --primary-foreground: 30 15% 98%;
 
-    --secondary: 26 97% 60%;       /* Vibrant orange (sunny, fun) */
-    --secondary-foreground: 25 48% 10%;
+    --secondary: 20 45% 55%;       /* Terracotta */
+    --secondary-foreground: 30 15% 98%;
 
-    --muted: 80 17% 73%;           /* Soft sage green */
-    --muted-foreground: 24 18% 40%;
+    --muted: 25 12% 75%;           /* Soft earth */
+    --muted-foreground: 20 8% 45%;
 
-    --accent: 186 70% 50%;         /* Teal accent, vibrant, fun */
-    --accent-foreground: 36 38% 13%;
+    --accent: 45 85% 65%;          /* Golden harvest */
+    --accent-foreground: 20 8% 15%;
 
-    --destructive: 9 92% 58%;      /* Coral for warning/CTA */
-    --destructive-foreground: 38 60% 96%;
+    --destructive: 5 75% 55%;      /* Alert red */
+    --destructive-foreground: 30 15% 98%;
 
-    --border: 25 20% 72%;          /* Soft tan */
-    --input: 25 20% 72%;
-    --ring: 26 97% 60%;            /* Use the sunny orange for focus rings */
+    --success: 95 45% 45%;         /* Healthy crop green */
+    --success-foreground: 30 15% 98%;
 
-    --radius: 0.5rem;
+    --warning: 35 85% 60%;         /* Caution orange */
+    --warning-foreground: 20 8% 15%;
+
+    --border: 25 15% 80%;          /* Subtle earth border */
+    --input: 25 15% 85%;
+    --ring: 95 38% 35%;            /* Farm green focus */
+
+    --radius: 0.75rem;
 
     /* Sidebar and UI neutrals */
     --sidebar-background: 35 26% 88%;     /* Pale beige */

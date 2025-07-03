@@ -16,6 +16,7 @@ import TermsPage from "./pages/TermsPage"; // Placeholder
 import PrivacyPage from "./pages/PrivacyPage"; // Placeholder
 import AboutPage from "./pages/AboutPage"; // Placeholder for footer link
 import ShopPage from "./pages/ShopPage"; // Add this import
+import FarmDashboard from "./pages/FarmDashboard";
 
 import NotFound from "./pages/NotFound";
 import Header from "@/components/Header";
@@ -53,7 +54,7 @@ const App = () => (
               <Route path="/login" element={<LoginPage />} />
               <Route path="/signup" element={<SignupPage />} />
               <Route path="/join-waitlist" element={<JoinWaitlistPage />} />
-              <Route path="/dashboard" element={<DashboardPage />} /> {/* Will be protected later */}
+              <Route path="/farm" element={<FarmDashboard />} />
               <Route path="/terms" element={<TermsPage />} />
               <Route path="/privacy" element={<PrivacyPage />} />
               <Route path="/about" element={<AboutPage />} />
