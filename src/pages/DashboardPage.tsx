@@ -12,11 +12,13 @@ import { BarChart3, Leaf, Users, TrendingUp, Bell, Settings, LogOut, Package, Me
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
+import DemoAccountBanner from "@/components/DemoAccountBanner";
 
 const DashboardPage = () => {
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { isDemoAccount } = useAuth();
   
   // Settings state
   const [temperatureUnit, setTemperatureUnit] = useState<'celsius' | 'fahrenheit'>('celsius');
@@ -199,284 +201,288 @@ const DashboardPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Header */}
-      <div className="bg-background border-b px-6 py-4">
-        <div className="container mx-auto flex justify-between items-center">
-          <div>
-            <h1 className="text-2xl font-bold text-primary">{t.welcome}, {farmData.ownerName}!</h1>
-            <p className="text-muted-foreground">{farmData.program} • {farmData.location}</p>
-          </div>
-          <div className="flex items-center gap-4">
-            {/* Notifications Dropdown */}
-            <Popover open={notificationsOpen} onOpenChange={setNotificationsOpen}>
-              <PopoverTrigger asChild>
-                <Button variant="ghost" size="icon" className="relative">
-                  <Bell className="h-5 w-5" />
-                  <Badge className="absolute -top-1 -right-1 h-5 w-5 rounded-full p-0 text-xs bg-destructive">
-                    {alerts.filter(a => a.priority === 'high').length}
-                  </Badge>
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-96 p-0" align="end">
-                <div className="border-b p-4">
-                  <h3 className="font-semibold text-sm">{t.recentAlerts}</h3>
-                </div>
-                <div className="max-h-96 overflow-y-auto">
-                  {alerts.map((alert) => (
-                    <div key={alert.id} className={`p-4 border-l-4 ${getPriorityColor(alert.priority)} border-b last:border-b-0`}>
-                      <div className="flex items-start gap-3">
-                        {getAlertIcon(alert.type)}
-                        <div className="flex-1 min-w-0">
-                          <p className="font-medium text-sm text-foreground">{alert.title}</p>
-                          <p className="text-xs text-muted-foreground mt-1">{alert.message}</p>
-                          <p className="text-xs text-muted-foreground mt-2">{alert.time}</p>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-                <div className="border-t p-3">
-                  <Button variant="ghost" size="sm" className="w-full text-xs" asChild>
-                    <Link to="/farm">View All Sensor Data</Link>
+    <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-50">
+      <div className="container mx-auto px-4 py-8">
+        {isDemoAccount && <DemoAccountBanner />}
+        
+        {/* Header */}
+        <div className="bg-background border-b px-6 py-4">
+          <div className="container mx-auto flex justify-between items-center">
+            <div>
+              <h1 className="text-2xl font-bold text-primary">{t.welcome}, {farmData.ownerName}!</h1>
+              <p className="text-muted-foreground">{farmData.program} • {farmData.location}</p>
+            </div>
+            <div className="flex items-center gap-4">
+              {/* Notifications Dropdown */}
+              <Popover open={notificationsOpen} onOpenChange={setNotificationsOpen}>
+                <PopoverTrigger asChild>
+                  <Button variant="ghost" size="icon" className="relative">
+                    <Bell className="h-5 w-5" />
+                    <Badge className="absolute -top-1 -right-1 h-5 w-5 rounded-full p-0 text-xs bg-destructive">
+                      {alerts.filter(a => a.priority === 'high').length}
+                    </Badge>
                   </Button>
-                </div>
-              </PopoverContent>
-            </Popover>
-
-            <Button variant="ghost" size="icon">
-              <Settings className="h-5 w-5" />
-            </Button>
-            <Button variant="outline" size="sm" onClick={handleSignOut}>
-              <LogOut className="h-4 w-4 mr-2" />
-              Logout
-            </Button>
-          </div>
-        </div>
-      </div>
-
-      <div className="container mx-auto p-6">
-        {/* Technology Overview Stats */}
-        <div className="grid lg:grid-cols-4 gap-6 mb-8">
-          {insights.map((insight, index) => (
-            <Card key={index}>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">{insight.title}</CardTitle>
-                {insight.icon}
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">{insight.value}</div>
-                <p className="text-xs text-muted-foreground">
-                  <span className={`${insight.change.includes('+') ? 'text-success' : 'text-info'}`}>
-                    {insight.change}
-                  </span>
-                  {' '}from last week
-                </p>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-
-        {/* Main Content Tabs */}
-        <Tabs defaultValue="insights" className="space-y-6">
-          <TabsList className="grid w-full lg:w-fit grid-cols-4">
-            <TabsTrigger value="insights">{t.farmInsights}</TabsTrigger>
-            <TabsTrigger value="orders">{t.orders}</TabsTrigger>
-            <TabsTrigger value="support">{t.support}</TabsTrigger>
-            <TabsTrigger value="account">{t.account}</TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="insights" className="space-y-6">
-            <div className="grid lg:grid-cols-2 gap-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle>IoT Sensor Network</CardTitle>
-                  <CardDescription>Live data from deployed TEROS, ATMOS, and ZL6 systems</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="h-64 bg-secondary/20 rounded-lg flex items-center justify-center">
-                    <div className="text-center">
-                      <BarChart3 className="h-16 w-16 text-primary mx-auto mb-4" />
-                      <p className="text-muted-foreground mb-2">Real-time sensor dashboard</p>
-                      <Button asChild size="sm">
-                        <Link to="/farm">View Live Data</Link>
-                      </Button>
-                    </div>
+                </PopoverTrigger>
+                <PopoverContent className="w-96 p-0" align="end">
+                  <div className="border-b p-4">
+                    <h3 className="font-semibold text-sm">{t.recentAlerts}</h3>
                   </div>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader>
-                  <CardTitle>{t.recentAlerts}</CardTitle>
-                  <CardDescription>AI-powered insights and recommendations</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    {alerts.slice(0, 3).map((alert) => (
-                      <div key={alert.id} className={`flex items-start gap-3 p-3 rounded-lg border-l-4 ${getPriorityColor(alert.priority)}`}>
-                        {getAlertIcon(alert.type)}
-                        <div className="flex-1">
-                          <p className="text-sm font-medium">{alert.title}</p>
-                          <p className="text-xs text-muted-foreground">{alert.time}</p>
+                  <div className="max-h-96 overflow-y-auto">
+                    {alerts.map((alert) => (
+                      <div key={alert.id} className={`p-4 border-l-4 ${getPriorityColor(alert.priority)} border-b last:border-b-0`}>
+                        <div className="flex items-start gap-3">
+                          {getAlertIcon(alert.type)}
+                          <div className="flex-1 min-w-0">
+                            <p className="font-medium text-sm text-foreground">{alert.title}</p>
+                            <p className="text-xs text-muted-foreground mt-1">{alert.message}</p>
+                            <p className="text-xs text-muted-foreground mt-2">{alert.time}</p>
+                          </div>
                         </div>
                       </div>
                     ))}
                   </div>
+                  <div className="border-t p-3">
+                    <Button variant="ghost" size="sm" className="w-full text-xs" asChild>
+                      <Link to="/farm">View All Sensor Data</Link>
+                    </Button>
+                  </div>
+                </PopoverContent>
+              </Popover>
+
+              <Button variant="ghost" size="icon">
+                <Settings className="h-5 w-5" />
+              </Button>
+              <Button variant="outline" size="sm" onClick={handleSignOut}>
+                <LogOut className="h-4 w-4 mr-2" />
+                Logout
+              </Button>
+            </div>
+          </div>
+        </div>
+
+        <div className="container mx-auto p-6">
+          {/* Technology Overview Stats */}
+          <div className="grid lg:grid-cols-4 gap-6 mb-8">
+            {insights.map((insight, index) => (
+              <Card key={index}>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">{insight.title}</CardTitle>
+                  {insight.icon}
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">{insight.value}</div>
+                  <p className="text-xs text-muted-foreground">
+                    <span className={`${insight.change.includes('+') ? 'text-success' : 'text-info'}`}>
+                      {insight.change}
+                    </span>
+                    {' '}from last week
+                  </p>
                 </CardContent>
               </Card>
-            </div>
+            ))}
+          </div>
 
-            <Card>
-              <CardHeader>
-                <CardTitle>{t.farmOverview}</CardTitle>
-                <CardDescription>Multi-plot testing program spanning {farmData.size}</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="grid md:grid-cols-3 gap-6">
-                  <div>
-                    <h4 className="font-semibold mb-2">Testing Location</h4>
-                    <p className="text-muted-foreground">{farmData.location}</p>
-                  </div>
-                  <div>
-                    <h4 className="font-semibold mb-2">Coverage Area</h4>
-                    <p className="text-muted-foreground">{farmData.size}</p>
-                  </div>
-                  <div>
-                    <h4 className="font-semibold mb-2">Monitored Crops</h4>
-                    <div className="flex flex-wrap gap-1">
-                      {farmData.crops.map((crop, index) => (
-                        <Badge key={index} variant="secondary">{crop}</Badge>
+          {/* Main Content Tabs */}
+          <Tabs defaultValue="insights" className="space-y-6">
+            <TabsList className="grid w-full lg:w-fit grid-cols-4">
+              <TabsTrigger value="insights">{t.farmInsights}</TabsTrigger>
+              <TabsTrigger value="orders">{t.orders}</TabsTrigger>
+              <TabsTrigger value="support">{t.support}</TabsTrigger>
+              <TabsTrigger value="account">{t.account}</TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="insights" className="space-y-6">
+              <div className="grid lg:grid-cols-2 gap-6">
+                <Card>
+                  <CardHeader>
+                    <CardTitle>IoT Sensor Network</CardTitle>
+                    <CardDescription>Live data from deployed TEROS, ATMOS, and ZL6 systems</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="h-64 bg-secondary/20 rounded-lg flex items-center justify-center">
+                      <div className="text-center">
+                        <BarChart3 className="h-16 w-16 text-primary mx-auto mb-4" />
+                        <p className="text-muted-foreground mb-2">Real-time sensor dashboard</p>
+                        <Button asChild size="sm">
+                          <Link to="/farm">View Live Data</Link>
+                        </Button>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardHeader>
+                    <CardTitle>{t.recentAlerts}</CardTitle>
+                    <CardDescription>AI-powered insights and recommendations</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-4">
+                      {alerts.slice(0, 3).map((alert) => (
+                        <div key={alert.id} className={`flex items-start gap-3 p-3 rounded-lg border-l-4 ${getPriorityColor(alert.priority)}`}>
+                          {getAlertIcon(alert.type)}
+                          <div className="flex-1">
+                            <p className="text-sm font-medium">{alert.title}</p>
+                            <p className="text-xs text-muted-foreground">{alert.time}</p>
+                          </div>
+                        </div>
                       ))}
                     </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
+                  </CardContent>
+                </Card>
+              </div>
 
-          <TabsContent value="orders" className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>{t.orderHistory}</CardTitle>
-                <CardDescription>IoT equipment deployment and technology subscriptions</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  {recentOrders.map((order) => (
-                    <div key={order.id} className="flex items-center justify-between p-4 border rounded-lg">
-                      <div className="flex items-center gap-3">
-                        <Package className="h-5 w-5 text-primary" />
-                        <div>
-                          <p className="font-medium">{order.item}</p>
-                          <p className="text-sm text-muted-foreground">Order {order.id} • {order.date}</p>
+              <Card>
+                <CardHeader>
+                  <CardTitle>{t.farmOverview}</CardTitle>
+                  <CardDescription>Multi-plot testing program spanning {farmData.size}</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid md:grid-cols-3 gap-6">
+                    <div>
+                      <h4 className="font-semibold mb-2">Testing Location</h4>
+                      <p className="text-muted-foreground">{farmData.location}</p>
+                    </div>
+                    <div>
+                      <h4 className="font-semibold mb-2">Coverage Area</h4>
+                      <p className="text-muted-foreground">{farmData.size}</p>
+                    </div>
+                    <div>
+                      <h4 className="font-semibold mb-2">Monitored Crops</h4>
+                      <div className="flex flex-wrap gap-1">
+                        {farmData.crops.map((crop, index) => (
+                          <Badge key={index} variant="secondary">{crop}</Badge>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            <TabsContent value="orders" className="space-y-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle>{t.orderHistory}</CardTitle>
+                  <CardDescription>IoT equipment deployment and technology subscriptions</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    {recentOrders.map((order) => (
+                      <div key={order.id} className="flex items-center justify-between p-4 border rounded-lg">
+                        <div className="flex items-center gap-3">
+                          <Package className="h-5 w-5 text-primary" />
+                          <div>
+                            <p className="font-medium">{order.item}</p>
+                            <p className="text-sm text-muted-foreground">Order {order.id} • {order.date}</p>
+                          </div>
                         </div>
+                        <Badge variant={
+                          order.status === 'Deployed' ? 'default' : 
+                          order.status === 'Active' ? 'secondary' : 'outline'
+                        }>
+                          {order.status}
+                        </Badge>
                       </div>
-                      <Badge variant={
-                        order.status === 'Deployed' ? 'default' : 
-                        order.status === 'Active' ? 'secondary' : 'outline'
-                      }>
-                        {order.status}
-                      </Badge>
-                    </div>
-                  ))}
-                </div>
-                <div className="mt-6">
-                  <Button asChild>
-                    <Link to="/products">Browse Equipment Catalog</Link>
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
+                    ))}
+                  </div>
+                  <div className="mt-6">
+                    <Button asChild>
+                      <Link to="/products">Browse Equipment Catalog</Link>
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            </TabsContent>
 
-          <TabsContent value="support" className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>{t.getSupport}</CardTitle>
-                <CardDescription>Expert assistance for your agricultural technology deployment</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="grid md:grid-cols-2 gap-4">
-                  <Button variant="outline" className="h-auto p-6 flex flex-col items-start gap-2">
-                    <MessageCircle className="h-6 w-6 text-primary" />
-                    <div className="text-left">
-                      <div className="font-semibold">{t.liveChat}</div>
-                      <div className="text-sm text-muted-foreground">{t.chatDesc}</div>
-                    </div>
-                  </Button>
-                  <Button variant="outline" className="h-auto p-6 flex flex-col items-start gap-2" asChild>
-                    <Link to="/contact">
-                      <Users className="h-6 w-6 text-primary" />
+            <TabsContent value="support" className="space-y-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle>{t.getSupport}</CardTitle>
+                  <CardDescription>Expert assistance for your agricultural technology deployment</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid md:grid-cols-2 gap-4">
+                    <Button variant="outline" className="h-auto p-6 flex flex-col items-start gap-2">
+                      <MessageCircle className="h-6 w-6 text-primary" />
                       <div className="text-left">
-                        <div className="font-semibold">{t.contactExpert}</div>
-                        <div className="text-sm text-muted-foreground">{t.expertDesc}</div>
+                        <div className="font-semibold">{t.liveChat}</div>
+                        <div className="text-sm text-muted-foreground">{t.chatDesc}</div>
                       </div>
-                    </Link>
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
+                    </Button>
+                    <Button variant="outline" className="h-auto p-6 flex flex-col items-start gap-2" asChild>
+                      <Link to="/contact">
+                        <Users className="h-6 w-6 text-primary" />
+                        <div className="text-left">
+                          <div className="font-semibold">{t.contactExpert}</div>
+                          <div className="text-sm text-muted-foreground">{t.expertDesc}</div>
+                        </div>
+                      </Link>
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            </TabsContent>
 
-          <TabsContent value="account" className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>{t.accountSettings}</CardTitle>
-                <CardDescription>Customize your dashboard preferences and settings</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                <div>
-                  <h4 className="font-semibold mb-4">{t.profileInfo}</h4>
-                  <p className="text-sm text-muted-foreground mb-4">Update your personal and farm details</p>
-                  <Button variant="outline">Edit Profile</Button>
-                </div>
-                
-                <div className="space-y-4 border-t pt-6">
-                  <h4 className="font-semibold">Display Preferences</h4>
+            <TabsContent value="account" className="space-y-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle>{t.accountSettings}</CardTitle>
+                  <CardDescription>Customize your dashboard preferences and settings</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  <div>
+                    <h4 className="font-semibold mb-4">{t.profileInfo}</h4>
+                    <p className="text-sm text-muted-foreground mb-4">Update your personal and farm details</p>
+                    <Button variant="outline">Edit Profile</Button>
+                  </div>
                   
-                  <div className="flex items-center justify-between">
-                    <div className="space-y-0.5">
-                      <Label className="text-sm font-medium">{t.tempUnit}</Label>
-                      <p className="text-xs text-muted-foreground">Choose temperature display format</p>
+                  <div className="space-y-4 border-t pt-6">
+                    <h4 className="font-semibold">Display Preferences</h4>
+                    
+                    <div className="flex items-center justify-between">
+                      <div className="space-y-0.5">
+                        <Label className="text-sm font-medium">{t.tempUnit}</Label>
+                        <p className="text-xs text-muted-foreground">Choose temperature display format</p>
+                      </div>
+                      <Select value={temperatureUnit} onValueChange={(value: 'celsius' | 'fahrenheit') => setTemperatureUnit(value)}>
+                        <SelectTrigger className="w-32">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="celsius">Celsius (°C)</SelectItem>
+                          <SelectItem value="fahrenheit">Fahrenheit (°F)</SelectItem>
+                        </SelectContent>
+                      </Select>
                     </div>
-                    <Select value={temperatureUnit} onValueChange={(value: 'celsius' | 'fahrenheit') => setTemperatureUnit(value)}>
-                      <SelectTrigger className="w-32">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="celsius">Celsius (°C)</SelectItem>
-                        <SelectItem value="fahrenheit">Fahrenheit (°F)</SelectItem>
-                      </SelectContent>
-                    </Select>
+
+                    <div className="flex items-center justify-between">
+                      <div className="space-y-0.5">
+                        <Label className="text-sm font-medium">{t.languagePref}</Label>
+                        <p className="text-xs text-muted-foreground">Select your preferred language</p>
+                      </div>
+                      <Select value={language} onValueChange={(value: 'en' | 'fr') => setLanguage(value)}>
+                        <SelectTrigger className="w-32">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="en">English</SelectItem>
+                          <SelectItem value="fr">Français</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
                   </div>
 
-                  <div className="flex items-center justify-between">
-                    <div className="space-y-0.5">
-                      <Label className="text-sm font-medium">{t.languagePref}</Label>
-                      <p className="text-xs text-muted-foreground">Select your preferred language</p>
-                    </div>
-                    <Select value={language} onValueChange={(value: 'en' | 'fr') => setLanguage(value)}>
-                      <SelectTrigger className="w-32">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="en">English</SelectItem>
-                        <SelectItem value="fr">Français</SelectItem>
-                      </SelectContent>
-                    </Select>
+                  <div className="border-t pt-6">
+                    <h4 className="font-semibold mb-2">Technology Subscription</h4>
+                    <p className="text-sm text-muted-foreground mb-4">Premium IoT Analytics Plan - Active until July 1, 2025</p>
+                    <Button variant="outline">Manage Subscription</Button>
                   </div>
-                </div>
-
-                <div className="border-t pt-6">
-                  <h4 className="font-semibold mb-2">Technology Subscription</h4>
-                  <p className="text-sm text-muted-foreground mb-4">Premium IoT Analytics Plan - Active until July 1, 2025</p>
-                  <Button variant="outline">Manage Subscription</Button>
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-        </Tabs>
+                </CardContent>
+              </Card>
+            </TabsContent>
+          </Tabs>
+        </div>
       </div>
     </div>
   );
