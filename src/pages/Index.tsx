@@ -5,6 +5,8 @@ import { Link } from "react-router-dom";
 import { Leaf, Users, TrendingUp, Heart, Sprout, BarChart3 } from "lucide-react";
 
 const Index = () => {
+  console.log('Index page rendering');
+  
   return (
     <div className="min-h-screen">
       {/* Hero Section */}
