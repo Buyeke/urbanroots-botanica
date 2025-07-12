@@ -434,7 +434,9 @@ const DashboardPage = () => {
                   <div>
                     <h4 className="font-semibold mb-4">{t.profileInfo}</h4>
                     <p className="text-sm text-muted-foreground mb-4">Update your personal and farm details</p>
-                    <Button variant="outline">Edit Profile</Button>
+                    <Button variant="outline" onClick={() => navigate('/account-settings')}>
+                      Edit Profile
+                    </Button>
                   </div>
                   
                   <div className="space-y-4 border-t pt-6">

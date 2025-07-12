@@ -14,34 +14,84 @@ export type Database = {
   }
   public: {
     Tables: {
+      profile_history: {
+        Row: {
+          changed_at: string
+          changed_by: string
+          field_name: string
+          id: string
+          new_value: string | null
+          old_value: string | null
+          profile_id: string
+        }
+        Insert: {
+          changed_at?: string
+          changed_by: string
+          field_name: string
+          id?: string
+          new_value?: string | null
+          old_value?: string | null
+          profile_id: string
+        }
+        Update: {
+          changed_at?: string
+          changed_by?: string
+          field_name?: string
+          id?: string
+          new_value?: string | null
+          old_value?: string | null
+          profile_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "profile_history_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
+          bio: string | null
+          company: string | null
           created_at: string | null
           email: string | null
           first_name: string | null
           id: string
           is_demo_account: boolean | null
           last_name: string | null
+          location: string | null
+          phone: string | null
           role: string | null
           updated_at: string | null
         }
         Insert: {
+          bio?: string | null
+          company?: string | null
           created_at?: string | null
           email?: string | null
           first_name?: string | null
           id: string
           is_demo_account?: boolean | null
           last_name?: string | null
+          location?: string | null
+          phone?: string | null
           role?: string | null
           updated_at?: string | null
         }
         Update: {
+          bio?: string | null
+          company?: string | null
           created_at?: string | null
           email?: string | null
           first_name?: string | null
           id?: string
           is_demo_account?: boolean | null
           last_name?: string | null
+          location?: string | null
+          phone?: string | null
           role?: string | null
           updated_at?: string | null
         }
