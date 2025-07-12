@@ -59,68 +59,63 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     console.log('Setting up auth state listener');
     
     let mounted = true;
-    
-    // Set up auth state listener first
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
-        console.log('Auth state changed:', event, session);
-        
-        if (!mounted) return;
-        
-        setSession(session);
-        setUser(session?.user ?? null);
-        
-        if (session?.user) {
-          const profileData = await fetchProfile(session.user.id);
-          if (mounted) {
-            setProfile(profileData);
-          }
-        } else {
-          setProfile(null);
-        }
-        
-        if (mounted) {
-          setLoading(false);
-        }
-      }
-    );
+    let initialized = false;
 
-    // Get initial session
-    const getInitialSession = async () => {
+    const handleAuthState = async (session: Session | null) => {
+      if (!mounted) return;
+      
+      console.log('Handling auth state:', !!session);
+      setSession(session);
+      setUser(session?.user ?? null);
+      
+      if (session?.user) {
+        const profileData = await fetchProfile(session.user.id);
+        if (mounted) {
+          setProfile(profileData);
+        }
+      } else {
+        setProfile(null);
+      }
+      
+      if (mounted && !initialized) {
+        setLoading(false);
+        initialized = true;
+      }
+    };
+
+    // Get initial session first
+    const initializeAuth = async () => {
       try {
         console.log('Getting initial session');
         const { data: { session: initialSession }, error } = await supabase.auth.getSession();
         
         if (error) {
           console.error('Error getting session:', error);
-          if (mounted) setLoading(false);
-          return;
-        }
-        
-        console.log('Initial session:', initialSession);
-        
-        if (!mounted) return;
-        
-        setSession(initialSession);
-        setUser(initialSession?.user ?? null);
-        
-        if (initialSession?.user) {
-          const profileData = await fetchProfile(initialSession.user.id);
-          if (mounted) {
-            setProfile(profileData);
-          }
-        }
-        
-        if (mounted) {
-          setLoading(false);
+        } else {
+          console.log('Initial session:', !!initialSession);
+          await handleAuthState(initialSession);
         }
       } catch (error) {
-        console.error('Error in getInitialSession:', error);
-        if (mounted) setLoading(false);
+        console.error('Error in initializeAuth:', error);
+      } finally {
+        if (mounted && !initialized) {
+          setLoading(false);
+          initialized = true;
+        }
       }
     };
-    
-    getInitialSession();
+
+    // Set up auth state listener
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      async (event, session) => {
+        console.log('Auth state changed:', event, !!session);
+        if (initialized) {
+          await handleAuthState(session);
+        }
+      }
+    );
+
+    initializeAuth();
 
     return () => {
       mounted = false;
