@@ -33,7 +33,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
 
-  const fetchProfile = async (userId: string) => {
+  const fetchProfile = async (userId: string, retries = 3): Promise<Profile | null> => {
     try {
       console.log('Fetching profile for user:', userId);
       const { data, error } = await supabase
@@ -44,6 +44,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       
       if (error) {
         console.error('Error fetching profile:', error);
+        
+        // If profile doesn't exist and we have retries left, wait and try again
+        // This handles the case where the trigger hasn't created the profile yet
+        if (error.code === 'PGRST116' && retries > 0) {
+          console.log('Profile not found, retrying in 1 second...');
+          await new Promise(resolve => setTimeout(resolve, 1000));
+          return fetchProfile(userId, retries - 1);
+        }
+        
         return null;
       }
       
@@ -55,11 +64,39 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  const createProfileIfMissing = async (user: User): Promise<Profile | null> => {
+    try {
+      console.log('Creating profile for user:', user.id);
+      const { data, error } = await supabase
+        .from('profiles')
+        .insert({
+          id: user.id,
+          email: user.email,
+          first_name: user.user_metadata?.first_name || null,
+          last_name: user.user_metadata?.last_name || null,
+          role: user.email === 'admin@test.com' ? 'demo_investor' : 'user',
+          is_demo_account: user.email === 'admin@test.com'
+        })
+        .select()
+        .single();
+
+      if (error) {
+        console.error('Error creating profile:', error);
+        return null;
+      }
+
+      console.log('Profile created:', data);
+      return data;
+    } catch (error) {
+      console.error('Error creating profile:', error);
+      return null;
+    }
+  };
+
   useEffect(() => {
     console.log('Setting up auth state listener');
     
     let mounted = true;
-    let initialized = false;
 
     const handleAuthState = async (session: Session | null) => {
       if (!mounted) return;
@@ -69,7 +106,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setUser(session?.user ?? null);
       
       if (session?.user) {
-        const profileData = await fetchProfile(session.user.id);
+        // Try to fetch profile first
+        let profileData = await fetchProfile(session.user.id);
+        
+        // If profile doesn't exist, try to create it
+        if (!profileData) {
+          console.log('Profile not found, attempting to create...');
+          profileData = await createProfileIfMissing(session.user);
+        }
+        
         if (mounted) {
           setProfile(profileData);
         }
@@ -77,13 +122,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setProfile(null);
       }
       
-      if (mounted && !initialized) {
+      if (mounted) {
         setLoading(false);
-        initialized = true;
       }
     };
 
-    // Get initial session first
+    // Set up auth state listener
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      async (event, session) => {
+        console.log('Auth state changed:', event, !!session);
+        await handleAuthState(session);
+      }
+    );
+
+    // Get initial session
     const initializeAuth = async () => {
       try {
         console.log('Getting initial session');
@@ -98,22 +150,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       } catch (error) {
         console.error('Error in initializeAuth:', error);
       } finally {
-        if (mounted && !initialized) {
+        if (mounted) {
           setLoading(false);
-          initialized = true;
         }
       }
     };
-
-    // Set up auth state listener
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
-        console.log('Auth state changed:', event, !!session);
-        if (initialized) {
-          await handleAuthState(session);
-        }
-      }
-    );
 
     initializeAuth();
 
