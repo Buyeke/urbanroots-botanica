@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -25,6 +24,8 @@ const SignupPage = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [isRedirecting, setIsRedirecting] = useState(false);
+  const [passwordStrength, setPasswordStrength] = useState({ score: 0, feedback: "" });
   const { toast } = useToast();
   const { signUp, user, loading } = useAuth();
   const navigate = useNavigate();
@@ -33,29 +34,86 @@ const SignupPage = () => {
   useEffect(() => {
     if (user && !loading) {
       console.log('User logged in, redirecting to dashboard');
-      navigate('/dashboard');
+      setIsRedirecting(true);
+      // Add a small delay to show the redirecting state
+      setTimeout(() => {
+        navigate('/dashboard');
+      }, 500);
     }
   }, [user, loading, navigate]);
 
-  // Show loading state while auth is initializing
-  if (loading) {
+  // Password strength checker
+  useEffect(() => {
+    if (formData.password) {
+      const checkPasswordStrength = (password: string) => {
+        let score = 0;
+        let feedback = "";
+
+        if (password.length >= 8) score++;
+        if (/[a-z]/.test(password)) score++;
+        if (/[A-Z]/.test(password)) score++;
+        if (/[0-9]/.test(password)) score++;
+        if (/[^A-Za-z0-9]/.test(password)) score++;
+
+        switch (score) {
+          case 0:
+          case 1:
+            feedback = "Very weak password";
+            break;
+          case 2:
+            feedback = "Weak password";
+            break;
+          case 3:
+            feedback = "Fair password";
+            break;
+          case 4:
+            feedback = "Good password";
+            break;
+          case 5:
+            feedback = "Strong password";
+            break;
+        }
+
+        return { score, feedback };
+      };
+
+      setPasswordStrength(checkPasswordStrength(formData.password));
+    } else {
+      setPasswordStrength({ score: 0, feedback: "" });
+    }
+  }, [formData.password]);
+
+  // Show loading state while auth is initializing or redirecting
+  if (loading || isRedirecting) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="text-lg">Loading...</div>
+        <div className="text-center space-y-4">
+          <Loader2 className="h-8 w-8 animate-spin mx-auto" />
+          <div className="text-lg">
+            {isRedirecting ? "Redirecting to dashboard..." : "Loading..."}
+          </div>
+        </div>
       </div>
     );
   }
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
+  const validateForm = () => {
     if (formData.password !== formData.confirmPassword) {
       toast({
         title: "Password mismatch",
         description: "Please make sure your passwords match.",
         variant: "destructive"
       });
-      return;
+      return false;
+    }
+
+    if (formData.password.length < 8) {
+      toast({
+        title: "Password too short",
+        description: "Password must be at least 8 characters long.",
+        variant: "destructive"
+      });
+      return false;
     }
 
     if (!formData.agreeTerms) {
@@ -64,27 +122,59 @@ const SignupPage = () => {
         description: "Please agree to the terms and conditions.",
         variant: "destructive"
       });
-      return;
+      return false;
     }
+
+    if (!formData.firstName.trim() || !formData.lastName.trim()) {
+      toast({
+        title: "Name required",
+        description: "Please enter your first and last name.",
+        variant: "destructive"
+      });
+      return false;
+    }
+
+    return true;
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    // Prevent double submissions
+    if (isLoading) return;
+
+    if (!validateForm()) return;
 
     setIsLoading(true);
 
     try {
       const metadata = {
-        first_name: formData.firstName,
-        last_name: formData.lastName,
-        farm_name: formData.farmName,
-        location: formData.location,
+        first_name: formData.firstName.trim(),
+        last_name: formData.lastName.trim(),
+        farm_name: formData.farmName.trim() || null,
+        location: formData.location.trim(),
         agree_updates: formData.agreeUpdates
       };
 
-      const { error } = await signUp(formData.email, formData.password, metadata);
+      const { error } = await signUp(formData.email.trim().toLowerCase(), formData.password, metadata);
       
       if (error) {
-        if (error.message.includes("already registered")) {
+        if (error.message.includes("already registered") || error.message.includes("User already registered")) {
           toast({
             title: "Account exists",
             description: "This email is already registered. Please try logging in instead.",
+            variant: "destructive"
+          });
+        } else if (error.message.includes("Invalid email")) {
+          toast({
+            title: "Invalid email",
+            description: "Please enter a valid email address.",
+            variant: "destructive"
+          });
+        } else if (error.message.includes("Password")) {
+          toast({
+            title: "Password error",
+            description: error.message || "Please check your password requirements.",
             variant: "destructive"
           });
         } else {
@@ -101,10 +191,11 @@ const SignupPage = () => {
         });
         // Don't navigate here, let the useEffect handle it
       }
-    } catch (error) {
+    } catch (error: any) {
+      console.error('Signup error:', error);
       toast({
         title: "Signup failed",
-        description: "An unexpected error occurred. Please try again.",
+        description: error?.message || "An unexpected error occurred. Please try again.",
         variant: "destructive"
       });
     } finally {
@@ -118,6 +209,26 @@ const SignupPage = () => {
       [e.target.name]: e.target.value
     });
   };
+
+  const getPasswordStrengthColor = (score: number) => {
+    switch (score) {
+      case 0:
+      case 1:
+        return "text-red-600";
+      case 2:
+        return "text-orange-600";
+      case 3:
+        return "text-yellow-600";
+      case 4:
+        return "text-blue-600";
+      case 5:
+        return "text-green-600";
+      default:
+        return "text-gray-600";
+    }
+  };
+
+  const isFormDisabled = isLoading || loading;
 
   return (
     <div className="min-h-screen flex items-center justify-center py-12 px-6 bg-secondary/10">
@@ -151,7 +262,9 @@ const SignupPage = () => {
                     value={formData.firstName}
                     onChange={handleChange}
                     required
+                    disabled={isFormDisabled}
                     placeholder="Your first name"
+                    className="disabled:opacity-50"
                   />
                 </div>
                 <div>
@@ -162,7 +275,9 @@ const SignupPage = () => {
                     value={formData.lastName}
                     onChange={handleChange}
                     required
+                    disabled={isFormDisabled}
                     placeholder="Your last name"
+                    className="disabled:opacity-50"
                   />
                 </div>
               </div>
@@ -176,7 +291,9 @@ const SignupPage = () => {
                   value={formData.email}
                   onChange={handleChange}
                   required
+                  disabled={isFormDisabled}
                   placeholder="your.email@example.com"
+                  className="disabled:opacity-50"
                 />
               </div>
 
@@ -190,14 +307,17 @@ const SignupPage = () => {
                     value={formData.password}
                     onChange={handleChange}
                     required
+                    disabled={isFormDisabled}
                     placeholder="Create a strong password"
+                    className="disabled:opacity-50"
                   />
                   <Button
                     type="button"
                     variant="ghost"
                     size="icon"
-                    className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                    className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent disabled:opacity-50"
                     onClick={() => setShowPassword(!showPassword)}
+                    disabled={isFormDisabled}
                   >
                     {showPassword ? (
                       <EyeOff className="h-4 w-4" />
@@ -206,6 +326,11 @@ const SignupPage = () => {
                     )}
                   </Button>
                 </div>
+                {passwordStrength.feedback && (
+                  <p className={`text-xs mt-1 ${getPasswordStrengthColor(passwordStrength.score)}`}>
+                    {passwordStrength.feedback}
+                  </p>
+                )}
               </div>
 
               <div>
@@ -218,14 +343,17 @@ const SignupPage = () => {
                     value={formData.confirmPassword}
                     onChange={handleChange}
                     required
+                    disabled={isFormDisabled}
                     placeholder="Confirm your password"
+                    className="disabled:opacity-50"
                   />
                   <Button
                     type="button"
                     variant="ghost"
                     size="icon"
-                    className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                    className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent disabled:opacity-50"
                     onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                    disabled={isFormDisabled}
                   >
                     {showConfirmPassword ? (
                       <EyeOff className="h-4 w-4" />
@@ -234,6 +362,11 @@ const SignupPage = () => {
                     )}
                   </Button>
                 </div>
+                {formData.confirmPassword && formData.password !== formData.confirmPassword && (
+                  <p className="text-xs mt-1 text-red-600">
+                    Passwords do not match
+                  </p>
+                )}
               </div>
 
               <div className="grid grid-cols-2 gap-4">
@@ -244,7 +377,9 @@ const SignupPage = () => {
                     name="farmName"
                     value={formData.farmName}
                     onChange={handleChange}
+                    disabled={isFormDisabled}
                     placeholder="Your farm name"
+                    className="disabled:opacity-50"
                   />
                 </div>
                 <div>
@@ -255,7 +390,9 @@ const SignupPage = () => {
                     value={formData.location}
                     onChange={handleChange}
                     required
+                    disabled={isFormDisabled}
                     placeholder="City, State"
+                    className="disabled:opacity-50"
                   />
                 </div>
               </div>
@@ -265,17 +402,26 @@ const SignupPage = () => {
                   <Checkbox
                     id="agreeTerms"
                     checked={formData.agreeTerms}
+                    disabled={isFormDisabled}
                     onCheckedChange={(checked) => 
                       setFormData({...formData, agreeTerms: checked as boolean})
                     }
                   />
                   <Label htmlFor="agreeTerms" className="text-sm">
                     I agree to the{" "}
-                    <Link to="/terms" className="text-primary hover:underline">
+                    <Link 
+                      to="/terms" 
+                      className="text-primary hover:underline"
+                      tabIndex={isFormDisabled ? -1 : 0}
+                    >
                       Terms of Service
                     </Link>{" "}
                     and{" "}
-                    <Link to="/privacy" className="text-primary hover:underline">
+                    <Link 
+                      to="/privacy" 
+                      className="text-primary hover:underline"
+                      tabIndex={isFormDisabled ? -1 : 0}
+                    >
                       Privacy Policy
                     </Link>
                   </Label>
@@ -284,6 +430,7 @@ const SignupPage = () => {
                   <Checkbox
                     id="agreeUpdates"
                     checked={formData.agreeUpdates}
+                    disabled={isFormDisabled}
                     onCheckedChange={(checked) => 
                       setFormData({...formData, agreeUpdates: checked as boolean})
                     }
@@ -294,15 +441,19 @@ const SignupPage = () => {
                 </div>
               </div>
 
-              <Button type="submit" className="w-full" disabled={isLoading}>
+              <Button type="submit" className="w-full" disabled={isFormDisabled}>
                 {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                Create Account
+                {isLoading ? "Creating Account..." : "Create Account"}
               </Button>
 
               <div className="text-center">
                 <p className="text-sm text-muted-foreground">
                   Already have an account?{" "}
-                  <Link to="/login" className="text-primary hover:underline">
+                  <Link 
+                    to="/login" 
+                    className="text-primary hover:underline"
+                    tabIndex={isFormDisabled ? -1 : 0}
+                  >
                     Sign in here
                   </Link>
                 </p>
@@ -322,7 +473,7 @@ const SignupPage = () => {
               </div>
 
               <div className="mt-6 grid grid-cols-2 gap-3">
-                <Button variant="outline" className="w-full">
+                <Button variant="outline" className="w-full" disabled={isFormDisabled}>
                   <svg className="h-4 w-4 mr-2" viewBox="0 0 24 24">
                     <path fill="currentColor" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
                     <path fill="currentColor" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
@@ -331,7 +482,7 @@ const SignupPage = () => {
                   </svg>
                   Google
                 </Button>
-                <Button variant="outline" className="w-full">
+                <Button variant="outline" className="w-full" disabled={isFormDisabled}>
                   <svg className="h-4 w-4 mr-2" fill="currentColor" viewBox="0 0 24 24">
                     <path d="M24 4.557c-.883.392-1.832.656-2.828.775 1.017-.609 1.798-1.574 2.165-2.724-.951.564-2.005.974-3.127 1.195-.897-.957-2.178-1.555-3.594-1.555-3.179 0-5.515 2.966-4.797 6.045-4.091-.205-7.719-2.165-10.148-5.144-1.29 2.213-.669 5.108 1.523 6.574-.806-.026-1.566-.247-2.229-.616-.054 2.281 1.581 4.415 3.949 4.89-.693.188-1.452.232-2.224.084.626 1.956 2.444 3.379 4.6 3.419-2.07 1.623-4.678 2.348-7.29 2.04 2.179 1.397 4.768 2.212 7.548 2.212 9.142 0 14.307-7.721 13.995-14.646.962-.695 1.797-1.562 2.457-2.549z"/>
                   </svg>
@@ -345,7 +496,11 @@ const SignupPage = () => {
         <div className="text-center">
           <p className="text-sm text-muted-foreground">
             Not ready to commit?{" "}
-            <Link to="/join-waitlist" className="text-primary hover:underline">
+            <Link 
+              to="/join-waitlist" 
+              className="text-primary hover:underline"
+              tabIndex={isFormDisabled ? -1 : 0}
+            >
               Join our waitlist instead
             </Link>
           </p>
