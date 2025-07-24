@@ -26,25 +26,15 @@ const SignupPage = () => {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
-  const { signUp, user, loading } = useAuth();
+  const { signUp, user } = useAuth();
   const navigate = useNavigate();
 
   // Redirect if already logged in
   useEffect(() => {
-    if (user && !loading) {
-      console.log('User logged in, redirecting to dashboard');
+    if (user) {
       navigate('/dashboard');
     }
-  }, [user, loading, navigate]);
-
-  // Show loading state while auth is initializing
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-lg">Loading...</div>
-      </div>
-    );
-  }
+  }, [user, navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -99,7 +89,7 @@ const SignupPage = () => {
           title: "Account created!",
           description: "Welcome to Urban Roots. Please check your email to verify your account.",
         });
-        // Don't navigate here, let the useEffect handle it
+        navigate('/dashboard');
       }
     } catch (error) {
       toast({

@@ -21,25 +21,15 @@ const LoginPage = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [isTestLogin, setIsTestLogin] = useState(false);
   const { toast } = useToast();
-  const { signIn, user, loading } = useAuth();
+  const { signIn, user, isDemoAccount } = useAuth();
   const navigate = useNavigate();
 
   // Redirect if already logged in
   useEffect(() => {
-    if (user && !loading) {
-      console.log('User logged in, redirecting to dashboard');
+    if (user) {
       navigate('/dashboard');
     }
-  }, [user, loading, navigate]);
-
-  // Show loading state while auth is initializing
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-lg">Loading...</div>
-      </div>
-    );
-  }
+  }, [user, navigate]);
 
   const handleTestAccount = async () => {
     setIsTestLogin(true);
@@ -63,7 +53,7 @@ const LoginPage = () => {
           title: "Demo Access Granted",
           description: "Welcome to the Urban Roots AI investor demo.",
         });
-        // Don't navigate here, let the useEffect handle it
+        navigate('/dashboard');
       }
     } catch (error) {
       toast({
@@ -94,7 +84,7 @@ const LoginPage = () => {
           title: "Login successful!",
           description: "Welcome back to Urban Roots.",
         });
-        // Don't navigate here, let the useEffect handle it
+        navigate('/dashboard');
       }
     } catch (error) {
       toast({
