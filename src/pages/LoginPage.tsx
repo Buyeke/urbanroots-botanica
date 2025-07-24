@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -20,16 +19,36 @@ const LoginPage = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isTestLogin, setIsTestLogin] = useState(false);
+  const [isRedirecting, setIsRedirecting] = useState(false);
   const { toast } = useToast();
-  const { signIn, user, isDemoAccount } = useAuth();
+  const { signIn, user, loading } = useAuth();
   const navigate = useNavigate();
 
   // Redirect if already logged in
   useEffect(() => {
-    if (user) {
-      navigate('/dashboard');
+    if (user && !loading) {
+      console.log('User logged in, redirecting to dashboard');
+      setIsRedirecting(true);
+      // Add a small delay to show the redirecting state
+      setTimeout(() => {
+        navigate('/dashboard');
+      }, 500);
     }
-  }, [user, navigate]);
+  }, [user, loading, navigate]);
+
+  // Show loading state while auth is initializing or redirecting
+  if (loading || isRedirecting) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center space-y-4">
+          <Loader2 className="h-8 w-8 animate-spin mx-auto" />
+          <div className="text-lg">
+            {isRedirecting ? "Redirecting to dashboard..." : "Loading..."}
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   const handleTestAccount = async () => {
     setIsTestLogin(true);
@@ -45,7 +64,7 @@ const LoginPage = () => {
       if (error) {
         toast({
           title: "Test Account Access Failed",
-          description: "Unable to access the demo account. Please try again or contact support.",
+          description: error.message || "Unable to access the demo account. Please try again or contact support.",
           variant: "destructive"
         });
       } else {
@@ -53,12 +72,13 @@ const LoginPage = () => {
           title: "Demo Access Granted",
           description: "Welcome to the Urban Roots AI investor demo.",
         });
-        navigate('/dashboard');
+        // Don't navigate here, let the useEffect handle it
       }
-    } catch (error) {
+    } catch (error: any) {
+      console.error('Test login error:', error);
       toast({
         title: "Login failed",
-        description: "An unexpected error occurred. Please try again.",
+        description: error?.message || "An unexpected error occurred. Please try again.",
         variant: "destructive"
       });
     } finally {
@@ -68,6 +88,10 @@ const LoginPage = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Prevent double submissions
+    if (isLoading) return;
+    
     setIsLoading(true);
 
     try {
@@ -84,12 +108,13 @@ const LoginPage = () => {
           title: "Login successful!",
           description: "Welcome back to Urban Roots.",
         });
-        navigate('/dashboard');
+        // Don't navigate here, let the useEffect handle it
       }
-    } catch (error) {
+    } catch (error: any) {
+      console.error('Login error:', error);
       toast({
         title: "Login failed",
-        description: "An unexpected error occurred. Please try again.",
+        description: error?.message || "An unexpected error occurred. Please try again.",
         variant: "destructive"
       });
     } finally {
@@ -103,6 +128,8 @@ const LoginPage = () => {
       [e.target.name]: e.target.value
     });
   };
+
+  const isFormDisabled = isLoading || isTestLogin || loading;
 
   return (
     <div className="min-h-screen flex items-center justify-center py-12 px-6 bg-secondary/10">
@@ -129,12 +156,12 @@ const LoginPage = () => {
               </p>
               <Button 
                 onClick={handleTestAccount}
-                disabled={isTestLogin}
-                className="w-full bg-green-700 hover:bg-green-800 text-white"
+                disabled={isFormDisabled}
+                className="w-full bg-green-700 hover:bg-green-800 text-white disabled:opacity-50"
                 size="sm"
               >
                 {isTestLogin && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                Access Demo Dashboard
+                {isTestLogin ? "Accessing Demo..." : "Access Demo Dashboard"}
               </Button>
             </div>
           </AlertDescription>
@@ -169,7 +196,9 @@ const LoginPage = () => {
                   value={formData.email}
                   onChange={handleChange}
                   required
+                  disabled={isFormDisabled}
                   placeholder="your.email@example.com"
+                  className="disabled:opacity-50"
                 />
               </div>
 
@@ -183,14 +212,17 @@ const LoginPage = () => {
                     value={formData.password}
                     onChange={handleChange}
                     required
+                    disabled={isFormDisabled}
                     placeholder="Enter your password"
+                    className="disabled:opacity-50"
                   />
                   <Button
                     type="button"
                     variant="ghost"
                     size="icon"
-                    className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                    className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent disabled:opacity-50"
                     onClick={() => setShowPassword(!showPassword)}
+                    disabled={isFormDisabled}
                   >
                     {showPassword ? (
                       <EyeOff className="h-4 w-4" />
@@ -206,6 +238,7 @@ const LoginPage = () => {
                   <Checkbox
                     id="rememberMe"
                     checked={formData.rememberMe}
+                    disabled={isFormDisabled}
                     onCheckedChange={(checked) => 
                       setFormData({...formData, rememberMe: checked as boolean})
                     }
@@ -214,20 +247,28 @@ const LoginPage = () => {
                     Remember me
                   </Label>
                 </div>
-                <Link to="#" className="text-sm text-primary hover:underline">
+                <Link 
+                  to="/forgot-password" 
+                  className="text-sm text-primary hover:underline"
+                  tabIndex={isFormDisabled ? -1 : 0}
+                >
                   Forgot password?
                 </Link>
               </div>
 
-              <Button type="submit" className="w-full" disabled={isLoading}>
+              <Button type="submit" className="w-full" disabled={isFormDisabled}>
                 {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                Sign In
+                {isLoading ? "Signing In..." : "Sign In"}
               </Button>
 
               <div className="text-center">
                 <p className="text-sm text-muted-foreground">
                   Don't have an account?{" "}
-                  <Link to="/signup" className="text-primary hover:underline">
+                  <Link 
+                    to="/signup" 
+                    className="text-primary hover:underline"
+                    tabIndex={isFormDisabled ? -1 : 0}
+                  >
                     Sign up here
                   </Link>
                 </p>
@@ -239,7 +280,11 @@ const LoginPage = () => {
         <div className="text-center">
           <p className="text-sm text-muted-foreground">
             Interested in our technology?{" "}
-            <Link to="/join-waitlist" className="text-primary hover:underline">
+            <Link 
+              to="/join-waitlist" 
+              className="text-primary hover:underline"
+              tabIndex={isFormDisabled ? -1 : 0}
+            >
               Join our waitlist
             </Link>
           </p>
