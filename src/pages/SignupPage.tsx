@@ -25,27 +25,42 @@ const SignupPage = () => {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isRedirecting, setIsRedirecting] = useState(false);
+  const [authInitialized, setAuthInitialized] = useState(false);
   const [passwordStrength, setPasswordStrength] = useState({ score: 0, feedback: "" });
   const { toast } = useToast();
   const { signUp, user, loading } = useAuth();
   const navigate = useNavigate();
 
+  // Handle auth initialization timeout
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      if (!authInitialized) {
+        setAuthInitialized(true);
+      }
+    }, 3000); // Force render after 3 seconds
+
+    if (!loading) {
+      setAuthInitialized(true);
+      clearTimeout(timeout);
+    }
+
+    return () => clearTimeout(timeout);
+  }, [loading, authInitialized]);
+
   // Redirect if already logged in
   useEffect(() => {
-    if (user && !loading) {
-      console.log('User logged in, redirecting to dashboard');
+    if (user && authInitialized) {
       setIsRedirecting(true);
-      // Add a small delay to show the redirecting state
       setTimeout(() => {
         navigate('/dashboard');
       }, 500);
     }
-  }, [user, loading, navigate]);
+  }, [user, authInitialized, navigate]);
 
   // Password strength checker
   useEffect(() => {
     if (formData.password) {
-      const checkPasswordStrength = (password: string) => {
+      const checkPasswordStrength = (password) => {
         let score = 0;
         let feedback = "";
 
@@ -83,15 +98,25 @@ const SignupPage = () => {
     }
   }, [formData.password]);
 
-  // Show loading state while auth is initializing or redirecting
-  if (loading || isRedirecting) {
+  // Show loading state only briefly
+  if (!authInitialized && loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center space-y-4">
           <Loader2 className="h-8 w-8 animate-spin mx-auto" />
-          <div className="text-lg">
-            {isRedirecting ? "Redirecting to dashboard..." : "Loading..."}
-          </div>
+          <div className="text-lg">Initializing...</div>
+        </div>
+      </div>
+    );
+  }
+
+  // Show redirecting state
+  if (isRedirecting) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center space-y-4">
+          <Loader2 className="h-8 w-8 animate-spin mx-auto" />
+          <div className="text-lg">Redirecting to dashboard...</div>
         </div>
       </div>
     );
@@ -137,10 +162,9 @@ const SignupPage = () => {
     return true;
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     
-    // Prevent double submissions
     if (isLoading) return;
 
     if (!validateForm()) return;
@@ -156,31 +180,31 @@ const SignupPage = () => {
         agree_updates: formData.agreeUpdates
       };
 
-      const { error } = await signUp(formData.email.trim().toLowerCase(), formData.password, metadata);
+      const result = await signUp(formData.email.trim().toLowerCase(), formData.password, metadata);
       
-      if (error) {
-        if (error.message.includes("already registered") || error.message.includes("User already registered")) {
+      if (result?.error) {
+        if (result.error.message.includes("already registered") || result.error.message.includes("User already registered")) {
           toast({
             title: "Account exists",
             description: "This email is already registered. Please try logging in instead.",
             variant: "destructive"
           });
-        } else if (error.message.includes("Invalid email")) {
+        } else if (result.error.message.includes("Invalid email")) {
           toast({
             title: "Invalid email",
             description: "Please enter a valid email address.",
             variant: "destructive"
           });
-        } else if (error.message.includes("Password")) {
+        } else if (result.error.message.includes("Password")) {
           toast({
             title: "Password error",
-            description: error.message || "Please check your password requirements.",
+            description: result.error.message || "Please check your password requirements.",
             variant: "destructive"
           });
         } else {
           toast({
             title: "Signup failed",
-            description: error.message || "Please try again.",
+            description: result.error.message || "Please try again.",
             variant: "destructive"
           });
         }
@@ -189,10 +213,8 @@ const SignupPage = () => {
           title: "Account created!",
           description: "Welcome to Urban Roots. Please check your email to verify your account.",
         });
-        // Don't navigate here, let the useEffect handle it
       }
-    } catch (error: any) {
-      console.error('Signup error:', error);
+    } catch (error) {
       toast({
         title: "Signup failed",
         description: error?.message || "An unexpected error occurred. Please try again.",
@@ -203,14 +225,14 @@ const SignupPage = () => {
     }
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (e) => {
     setFormData({
       ...formData,
       [e.target.name]: e.target.value
     });
   };
 
-  const getPasswordStrengthColor = (score: number) => {
+  const getPasswordStrengthColor = (score) => {
     switch (score) {
       case 0:
       case 1:
@@ -228,7 +250,7 @@ const SignupPage = () => {
     }
   };
 
-  const isFormDisabled = isLoading || loading;
+  const isFormDisabled = isLoading;
 
   return (
     <div className="min-h-screen flex items-center justify-center py-12 px-6 bg-secondary/10">
@@ -404,7 +426,7 @@ const SignupPage = () => {
                     checked={formData.agreeTerms}
                     disabled={isFormDisabled}
                     onCheckedChange={(checked) => 
-                      setFormData({...formData, agreeTerms: checked as boolean})
+                      setFormData({...formData, agreeTerms: checked})
                     }
                   />
                   <Label htmlFor="agreeTerms" className="text-sm">
@@ -432,7 +454,7 @@ const SignupPage = () => {
                     checked={formData.agreeUpdates}
                     disabled={isFormDisabled}
                     onCheckedChange={(checked) => 
-                      setFormData({...formData, agreeUpdates: checked as boolean})
+                      setFormData({...formData, agreeUpdates: checked})
                     }
                   />
                   <Label htmlFor="agreeUpdates" className="text-sm">

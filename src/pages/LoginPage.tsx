@@ -20,31 +20,56 @@ const LoginPage = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [isTestLogin, setIsTestLogin] = useState(false);
   const [isRedirecting, setIsRedirecting] = useState(false);
+  const [authInitialized, setAuthInitialized] = useState(false);
   const { toast } = useToast();
   const { signIn, user, loading } = useAuth();
   const navigate = useNavigate();
 
+  // Handle auth initialization timeout
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      if (!authInitialized) {
+        setAuthInitialized(true);
+      }
+    }, 3000); // Force render after 3 seconds
+
+    if (!loading) {
+      setAuthInitialized(true);
+      clearTimeout(timeout);
+    }
+
+    return () => clearTimeout(timeout);
+  }, [loading, authInitialized]);
+
   // Redirect if already logged in
   useEffect(() => {
-    if (user && !loading) {
-      console.log('User logged in, redirecting to dashboard');
+    if (user && authInitialized) {
       setIsRedirecting(true);
-      // Add a small delay to show the redirecting state
       setTimeout(() => {
         navigate('/dashboard');
       }, 500);
     }
-  }, [user, loading, navigate]);
+  }, [user, authInitialized, navigate]);
 
-  // Show loading state while auth is initializing or redirecting
-  if (loading || isRedirecting) {
+  // Show loading state only briefly
+  if (!authInitialized && loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center space-y-4">
           <Loader2 className="h-8 w-8 animate-spin mx-auto" />
-          <div className="text-lg">
-            {isRedirecting ? "Redirecting to dashboard..." : "Loading..."}
-          </div>
+          <div className="text-lg">Initializing...</div>
+        </div>
+      </div>
+    );
+  }
+
+  // Show redirecting state
+  if (isRedirecting) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center space-y-4">
+          <Loader2 className="h-8 w-8 animate-spin mx-auto" />
+          <div className="text-lg">Redirecting to dashboard...</div>
         </div>
       </div>
     );
@@ -59,12 +84,12 @@ const LoginPage = () => {
     });
     
     try {
-      const { error } = await signIn("admin@test.com", "Password7");
+      const result = await signIn("admin@test.com", "Password7");
       
-      if (error) {
+      if (result?.error) {
         toast({
           title: "Test Account Access Failed",
-          description: error.message || "Unable to access the demo account. Please try again or contact support.",
+          description: result.error.message || "Unable to access the demo account.",
           variant: "destructive"
         });
       } else {
@@ -72,13 +97,11 @@ const LoginPage = () => {
           title: "Demo Access Granted",
           description: "Welcome to the Urban Roots AI investor demo.",
         });
-        // Don't navigate here, let the useEffect handle it
       }
-    } catch (error: any) {
-      console.error('Test login error:', error);
+    } catch (error) {
       toast({
         title: "Login failed",
-        description: error?.message || "An unexpected error occurred. Please try again.",
+        description: error?.message || "An unexpected error occurred.",
         variant: "destructive"
       });
     } finally {
@@ -86,21 +109,20 @@ const LoginPage = () => {
     }
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     
-    // Prevent double submissions
     if (isLoading) return;
     
     setIsLoading(true);
 
     try {
-      const { error } = await signIn(formData.email, formData.password);
+      const result = await signIn(formData.email, formData.password);
       
-      if (error) {
+      if (result?.error) {
         toast({
           title: "Login failed",
-          description: error.message || "Please check your credentials and try again.",
+          description: result.error.message || "Please check your credentials and try again.",
           variant: "destructive"
         });
       } else {
@@ -108,10 +130,8 @@ const LoginPage = () => {
           title: "Login successful!",
           description: "Welcome back to Urban Roots.",
         });
-        // Don't navigate here, let the useEffect handle it
       }
-    } catch (error: any) {
-      console.error('Login error:', error);
+    } catch (error) {
       toast({
         title: "Login failed",
         description: error?.message || "An unexpected error occurred. Please try again.",
@@ -122,14 +142,14 @@ const LoginPage = () => {
     }
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (e) => {
     setFormData({
       ...formData,
       [e.target.name]: e.target.value
     });
   };
 
-  const isFormDisabled = isLoading || isTestLogin || loading;
+  const isFormDisabled = isLoading || isTestLogin;
 
   return (
     <div className="min-h-screen flex items-center justify-center py-12 px-6 bg-secondary/10">
@@ -145,7 +165,6 @@ const LoginPage = () => {
           </p>
         </div>
 
-        {/* Demo Account Access */}
         <Alert className="border-green-200 bg-green-50/50">
           <TestTube className="h-4 w-4 text-green-700" />
           <AlertDescription className="text-green-800">
@@ -240,7 +259,7 @@ const LoginPage = () => {
                     checked={formData.rememberMe}
                     disabled={isFormDisabled}
                     onCheckedChange={(checked) => 
-                      setFormData({...formData, rememberMe: checked as boolean})
+                      setFormData({...formData, rememberMe: checked})
                     }
                   />
                   <Label htmlFor="rememberMe" className="text-sm">
