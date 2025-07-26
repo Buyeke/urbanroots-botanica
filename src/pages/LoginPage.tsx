@@ -19,52 +19,42 @@ const LoginPage = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isTestLogin, setIsTestLogin] = useState(false);
-  const [isRedirecting, setIsRedirecting] = useState(false);
-  const [authInitialized, setAuthInitialized] = useState(false);
+  const [hasRedirected, setHasRedirected] = useState(false);
   const { toast } = useToast();
   const { signIn, user, loading } = useAuth();
   const navigate = useNavigate();
 
-  // Handle auth initialization timeout
+  // Redirect if already logged in - with better handling
   useEffect(() => {
-    const timeout = setTimeout(() => {
-      if (!authInitialized) {
-        setAuthInitialized(true);
-      }
-    }, 3000); // Force render after 3 seconds
-
-    if (!loading) {
-      setAuthInitialized(true);
-      clearTimeout(timeout);
-    }
-
-    return () => clearTimeout(timeout);
-  }, [loading, authInitialized]);
-
-  // Redirect if already logged in
-  useEffect(() => {
-    if (user && authInitialized) {
-      setIsRedirecting(true);
+    if (user && !loading && !hasRedirected) {
+      console.log('User detected, starting redirect...');
+      setHasRedirected(true);
+      
+      // Use replace instead of navigate to prevent back button issues
       setTimeout(() => {
-        navigate('/dashboard');
-      }, 500);
+        navigate('/dashboard', { replace: true });
+      }, 100);
     }
-  }, [user, authInitialized, navigate]);
+  }, [user, loading, navigate, hasRedirected]);
 
-  // Show loading state only briefly
-  if (!authInitialized && loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center space-y-4">
-          <Loader2 className="h-8 w-8 animate-spin mx-auto" />
-          <div className="text-lg">Initializing...</div>
+  // Don't show loading screen on initial mount - let the form render
+  if (loading && !user && !hasRedirected) {
+    // Only show loading if we're actually waiting for auth to initialize
+    // and we haven't tried to login yet
+    if (!isLoading && !isTestLogin) {
+      return (
+        <div className="min-h-screen flex items-center justify-center">
+          <div className="text-center space-y-4">
+            <Loader2 className="h-8 w-8 animate-spin mx-auto" />
+            <div className="text-lg">Checking authentication...</div>
+          </div>
         </div>
-      </div>
-    );
+      );
+    }
   }
 
-  // Show redirecting state
-  if (isRedirecting) {
+  // Show redirecting state only when we have a user and are redirecting
+  if (user && hasRedirected) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center space-y-4">
@@ -84,7 +74,9 @@ const LoginPage = () => {
     });
     
     try {
+      console.log('Starting test login...');
       const result = await signIn("admin@test.com", "Password7");
+      console.log('Test login result:', result);
       
       if (result?.error) {
         toast({
@@ -97,8 +89,10 @@ const LoginPage = () => {
           title: "Demo Access Granted",
           description: "Welcome to the Urban Roots AI investor demo.",
         });
+        // Login successful - let useEffect handle redirect
       }
     } catch (error) {
+      console.error('Test login error:', error);
       toast({
         title: "Login failed",
         description: error?.message || "An unexpected error occurred.",
@@ -115,9 +109,11 @@ const LoginPage = () => {
     if (isLoading) return;
     
     setIsLoading(true);
+    console.log('Starting regular login...');
 
     try {
       const result = await signIn(formData.email, formData.password);
+      console.log('Login result:', result);
       
       if (result?.error) {
         toast({
@@ -130,8 +126,10 @@ const LoginPage = () => {
           title: "Login successful!",
           description: "Welcome back to Urban Roots.",
         });
+        // Login successful - let useEffect handle redirect
       }
     } catch (error) {
+      console.error('Login error:', error);
       toast({
         title: "Login failed",
         description: error?.message || "An unexpected error occurred. Please try again.",
