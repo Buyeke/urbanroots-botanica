@@ -4,6 +4,7 @@ import InsightsTab from "./InsightsTab";
 import OrdersTab from "./OrdersTab";
 import SupportTab from "./SupportTab";
 import AccountTab from "./AccountTab";
+import SoilAnalysisTab from "./SoilAnalysisTab";
 
 interface DashboardTabsProps {
   translations: any;
@@ -28,9 +29,10 @@ const DashboardTabs = ({
 }: DashboardTabsProps) => {
   return (
     <Tabs defaultValue="insights" className="space-y-6">
-      <TabsList className="grid w-full lg:w-fit grid-cols-4">
+      <TabsList className="grid w-full lg:w-fit grid-cols-5">
         <TabsTrigger value="insights">{translations.farmInsights}</TabsTrigger>
         <TabsTrigger value="orders">{translations.orders}</TabsTrigger>
+        <TabsTrigger value="soil-analysis">Soil Analysis</TabsTrigger>
         <TabsTrigger value="support">{translations.support}</TabsTrigger>
         <TabsTrigger value="account">{translations.account}</TabsTrigger>
       </TabsList>
@@ -48,6 +50,10 @@ const DashboardTabs = ({
           translations={translations}
           recentOrders={recentOrders}
         />
+      </TabsContent>
+
+      <TabsContent value="soil-analysis">
+        <SoilAnalysisTab translations={translations} />
       </TabsContent>
 
       <TabsContent value="support">
