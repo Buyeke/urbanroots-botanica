@@ -1,7 +1,7 @@
+
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { 
@@ -13,20 +13,20 @@ import {
   Droplet, 
   Thermometer, 
   BarChart3,
-  Settings,
   ChevronDown,
   AlertTriangle,
   CheckCircle,
   Info
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
+import DashboardTabs from "@/components/dashboard/DashboardTabs";
 
 const DashboardPage = () => {
   const [authChecked, setAuthChecked] = useState(false);
   const [isSigningOut, setIsSigningOut] = useState(false);
   const [notificationsOpen, setNotificationsOpen] = useState(false);
-  const [temperatureUnit, setTemperatureUnit] = useState('celsius');
-  const [language, setLanguage] = useState('en');
+  const [temperatureUnit, setTemperatureUnit] = useState<'celsius' | 'fahrenheit'>('celsius');
+  const [language, setLanguage] = useState<'en' | 'fr'>('en');
   
   const { user, loading, signOut, isDemoAccount } = useAuth();
   const navigate = useNavigate();
@@ -98,7 +98,7 @@ const DashboardPage = () => {
   };
 
   // Convert temperature
-  const convertTemp = (fahrenheit) => {
+  const convertTemp = (fahrenheit: number) => {
     if (temperatureUnit === 'celsius') {
       return `${Math.round((fahrenheit - 32) * 5/9)}°C`;
     }
@@ -147,44 +147,48 @@ const DashboardPage = () => {
   const alerts = [
     {
       id: 1,
-      type: "warning",
+      type: "warning" as const,
       title: "Irrigation Alert - Plot 2",
       message: "Soil moisture detected at 35% in maize section. Irrigation recommended within 4 hours.",
       time: "12 minutes ago",
-      priority: "high"
+      priority: "high" as const
     },
     {
       id: 2,
-      type: "info",
+      type: "info" as const,
       title: "Weather Intelligence",
       message: "Forecasted rainfall (15mm) in next 18 hours. Delay scheduled irrigation for plots 3-5.",
       time: "45 minutes ago",
-      priority: "medium"
+      priority: "medium" as const
     },
     {
       id: 3,
-      type: "success",
+      type: "success" as const,
       title: "Growth Milestone",
       message: "Tomato crop in Plot 1 showing 18% above-average growth rate.",
       time: "2 hours ago",
-      priority: "low"
+      priority: "low" as const
     }
   ];
 
-  const getStatusColor = (status) => {
-    switch (status) {
-      case 'optimal':
-      case 'excellent':
-        return 'text-green-600 bg-green-50';
-      case 'good':
-      case 'on-track':
-        return 'text-blue-600 bg-blue-50';
-      default:
-        return 'text-gray-600 bg-gray-50';
+  const recentOrders = [
+    {
+      id: 1,
+      product: "Organic Fertilizer",
+      quantity: "50kg",
+      status: "delivered",
+      date: "2024-01-15"
+    },
+    {
+      id: 2,
+      product: "Seeds - Tomato",
+      quantity: "2kg",
+      status: "shipped",
+      date: "2024-01-20"
     }
-  };
+  ];
 
-  const getAlertIcon = (type) => {
+  const getAlertIcon = (type: string) => {
     switch (type) {
       case 'warning':
         return <AlertTriangle className="h-4 w-4 text-orange-500" />;
@@ -195,6 +199,14 @@ const DashboardPage = () => {
       default:
         return <Info className="h-4 w-4 text-gray-500" />;
     }
+  };
+
+  // Translations object
+  const translations = {
+    farmInsights: "Farm Insights",
+    orders: "Orders",
+    support: "Support",
+    account: "Account"
   };
 
   return (
@@ -302,112 +314,17 @@ const DashboardPage = () => {
           </div>
         </div>
 
-        {/* Insights Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          {insights.map((insight, index) => (
-            <Card key={index}>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">{insight.title}</CardTitle>
-                {insight.icon}
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">{insight.value}</div>
-                <div className="flex items-center justify-between mt-2">
-                  <Badge className={getStatusColor(insight.status)}>
-                    {insight.status}
-                  </Badge>
-                  <span className="text-xs text-green-600 font-medium">
-                    {insight.change}
-                  </span>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-
-        {/* Recent Activity and Settings */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Recent Alerts */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Recent Alerts</CardTitle>
-              <CardDescription>Latest updates from your farm operations</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {alerts.slice(0, 3).map((alert) => (
-                  <div key={alert.id} className="flex items-start gap-3 p-3 bg-gray-50 rounded-lg">
-                    {getAlertIcon(alert.type)}
-                    <div className="flex-1">
-                      <div className="font-medium text-sm">{alert.title}</div>
-                      <div className="text-sm text-gray-600 mt-1">{alert.message}</div>
-                      <div className="text-xs text-gray-400 mt-1">{alert.time}</div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Quick Settings */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Quick Settings</CardTitle>
-              <CardDescription>Adjust your dashboard preferences</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div>
-                <label className="text-sm font-medium">Temperature Unit</label>
-                <div className="flex gap-2 mt-2">
-                  <Button
-                    variant={temperatureUnit === 'celsius' ? 'default' : 'outline'}
-                    size="sm"
-                    onClick={() => setTemperatureUnit('celsius')}
-                  >
-                    Celsius
-                  </Button>
-                  <Button
-                    variant={temperatureUnit === 'fahrenheit' ? 'default' : 'outline'}
-                    size="sm"
-                    onClick={() => setTemperatureUnit('fahrenheit')}
-                  >
-                    Fahrenheit
-                  </Button>
-                </div>
-              </div>
-              
-              <div>
-                <label className="text-sm font-medium">Language</label>
-                <div className="flex gap-2 mt-2">
-                  <Button
-                    variant={language === 'en' ? 'default' : 'outline'}
-                    size="sm"
-                    onClick={() => setLanguage('en')}
-                  >
-                    English
-                  </Button>
-                  <Button
-                    variant={language === 'fr' ? 'default' : 'outline'}
-                    size="sm"
-                    onClick={() => setLanguage('fr')}
-                  >
-                    Français
-                  </Button>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Debug Info */}
-        <div className="mt-8 p-4 bg-gray-100 rounded-lg text-xs text-gray-600">
-          <div className="font-medium mb-2">Debug Info:</div>
-          <div>User: {user ? 'Authenticated' : 'Not authenticated'}</div>
-          <div>Loading: {loading ? 'True' : 'False'}</div>
-          <div>Auth Checked: {authChecked ? 'True' : 'False'}</div>
-          <div>Demo Account: {isDemoAccount ? 'True' : 'False'}</div>
-          <div>User Email: {user?.email || 'N/A'}</div>
-        </div>
+        {/* Dashboard Tabs with all functionality including Soil Analysis */}
+        <DashboardTabs
+          translations={translations}
+          farmData={farmData}
+          alerts={alerts}
+          recentOrders={recentOrders}
+          temperatureUnit={temperatureUnit}
+          setTemperatureUnit={setTemperatureUnit}
+          language={language}
+          setLanguage={setLanguage}
+        />
       </main>
     </div>
   );
