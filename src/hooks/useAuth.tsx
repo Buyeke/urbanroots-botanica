@@ -1,3 +1,4 @@
+
 import { useState, useEffect, createContext, useContext, ReactNode } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
@@ -51,32 +52,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     updated_at: new Date().toISOString()
   });
 
-  const createMissingProfile = async (userId: string, email: string): Promise<Profile | null> => {
-    try {
-      console.log('Creating missing profile for user:', userId);
-      const { data, error } = await supabase
-        .from('profiles')
-        .insert({
-          id: userId,
-          email: email,
-          role: 'user',
-          is_demo_account: false
-        })
-        .select()
-        .single();
-
-      if (error) {
-        console.error('Error creating profile:', error);
-        return null;
-      }
-
-      return data;
-    } catch (error) {
-      console.error('Error creating missing profile:', error);
-      return null;
-    }
-  };
-
   const fetchProfile = async (userId: string): Promise<Profile | null> => {
     try {
       const { data, error } = await supabase
@@ -109,21 +84,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setSession(session);
         setUser(session?.user ?? null);
         
+        // Handle profile loading separately to prevent blocking
         if (session?.user) {
+          // Use setTimeout to prevent blocking the auth callback
           setTimeout(async () => {
             if (!mounted) return;
             
             try {
-              let profileData = await fetchProfile(session.user.id);
-              
-              // If profile doesn't exist, try to create it
-              if (!profileData) {
-                console.log('Profile not found, attempting to create it...');
-                profileData = await createMissingProfile(session.user.id, session.user.email!);
-              }
-              
+              const profileData = await fetchProfile(session.user.id);
               if (mounted) {
-                // Use fallback profile if database profile is still missing
+                // Use fallback profile if database profile is missing
                 const finalProfile = profileData || createFallbackProfile(session.user);
                 setProfile(finalProfile);
               }
@@ -154,16 +124,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           
           if (initialSession?.user) {
             try {
-              let profileData = await fetchProfile(initialSession.user.id);
-              
-              // If profile doesn't exist, try to create it
-              if (!profileData) {
-                console.log('Profile not found during initialization, attempting to create it...');
-                profileData = await createMissingProfile(initialSession.user.id, initialSession.user.email!);
-              }
-              
+              const profileData = await fetchProfile(initialSession.user.id);
               if (mounted) {
-                // Use fallback profile if database profile is still missing
+                // Use fallback profile if database profile is missing
                 const finalProfile = profileData || createFallbackProfile(initialSession.user);
                 setProfile(finalProfile);
               }

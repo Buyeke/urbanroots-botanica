@@ -1,9 +1,7 @@
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { BarChart3, AlertTriangle, Leaf, Bell } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Droplet, Thermometer, BarChart3, Leaf } from "lucide-react";
 
 interface InsightsTabProps {
   translations: any;
@@ -12,87 +10,96 @@ interface InsightsTabProps {
 }
 
 const InsightsTab = ({ translations, farmData, alerts }: InsightsTabProps) => {
-  const getAlertIcon = (type: string) => {
-    switch (type) {
-      case 'warning': return <AlertTriangle className="h-4 w-4 text-warning" />;
-      case 'success': return <Leaf className="h-4 w-4 text-success" />;
-      default: return <Bell className="h-4 w-4 text-info" />;
+  const insights = [
+    {
+      title: "Soil Moisture",
+      value: "68%",
+      status: "optimal",
+      change: "+5%",
+      icon: <Droplet className="h-4 w-4" />
+    },
+    {
+      title: "Temperature",
+      value: "22°C",
+      status: "good",
+      change: "+1°C",
+      icon: <Thermometer className="h-4 w-4" />
+    },
+    {
+      title: "Expected Yield",
+      value: "125%",
+      status: "excellent",
+      change: "+15%",
+      icon: <BarChart3 className="h-4 w-4" />
+    },
+    {
+      title: "Growth Stage",
+      value: "Flowering",
+      status: "on-track",
+      change: "On schedule",
+      icon: <Leaf className="h-4 w-4" />
     }
-  };
+  ];
 
-  const getPriorityColor = (priority: string) => {
-    switch (priority) {
-      case 'high': return 'border-l-destructive bg-destructive/5';
-      case 'medium': return 'border-l-warning bg-warning/5';
-      default: return 'border-l-success bg-success/5';
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'excellent':
+        return 'bg-green-50 text-green-700 border-green-200';
+      case 'optimal':
+      case 'good':
+      case 'on-track':
+        return 'bg-blue-50 text-blue-700 border-blue-200';
+      default:
+        return 'bg-gray-50 text-gray-700 border-gray-200';
     }
   };
 
   return (
     <div className="space-y-6">
-      <div className="grid lg:grid-cols-2 gap-6">
-        <Card>
-          <CardHeader>
-            <CardTitle>IoT Sensor Network</CardTitle>
-            <CardDescription>Live data from deployed TEROS, ATMOS, and ZL6 systems</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="h-64 bg-secondary/20 rounded-lg flex items-center justify-center">
-              <div className="text-center">
-                <BarChart3 className="h-16 w-16 text-primary mx-auto mb-4" />
-                <p className="text-muted-foreground mb-2">Real-time sensor dashboard</p>
-                <Button asChild size="sm">
-                  <Link to="/farm">View Live Data</Link>
-                </Button>
+      {/* Key Insights Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        {insights.map((insight, index) => (
+          <Card key={index}>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">
+                {insight.title}
+              </CardTitle>
+              {insight.icon}
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{insight.value}</div>
+              <div className="flex items-center justify-between mt-2">
+                <Badge variant="outline" className={getStatusColor(insight.status)}>
+                  {insight.status}
+                </Badge>
+                <p className="text-xs text-muted-foreground">
+                  {insight.change}
+                </p>
               </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>{translations.recentAlerts}</CardTitle>
-            <CardDescription>AI-powered insights and recommendations</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              {alerts.slice(0, 3).map((alert) => (
-                <div key={alert.id} className={`flex items-start gap-3 p-3 rounded-lg border-l-4 ${getPriorityColor(alert.priority)}`}>
-                  {getAlertIcon(alert.type)}
-                  <div className="flex-1">
-                    <p className="text-sm font-medium">{alert.title}</p>
-                    <p className="text-xs text-muted-foreground">{alert.time}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
+        ))}
       </div>
 
+      {/* Recent Alerts */}
       <Card>
         <CardHeader>
-          <CardTitle>{translations.farmOverview}</CardTitle>
-          <CardDescription>Multi-plot testing program spanning {farmData.size}</CardDescription>
+          <CardTitle>Recent Alerts</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid md:grid-cols-3 gap-6">
-            <div>
-              <h4 className="font-semibold mb-2">Testing Location</h4>
-              <p className="text-muted-foreground">{farmData.location}</p>
-            </div>
-            <div>
-              <h4 className="font-semibold mb-2">Coverage Area</h4>
-              <p className="text-muted-foreground">{farmData.size}</p>
-            </div>
-            <div>
-              <h4 className="font-semibold mb-2">Monitored Crops</h4>
-              <div className="flex flex-wrap gap-1">
-                {farmData.crops.map((crop: string, index: number) => (
-                  <Badge key={index} variant="secondary">{crop}</Badge>
-                ))}
+          <div className="space-y-3">
+            {alerts.slice(0, 3).map((alert) => (
+              <div key={alert.id} className="flex items-start space-x-3 p-3 border rounded-lg">
+                <div className="flex-1">
+                  <div className="font-medium text-sm">{alert.title}</div>
+                  <div className="text-xs text-muted-foreground mt-1">{alert.message}</div>
+                  <div className="text-xs text-muted-foreground mt-1">{alert.time}</div>
+                </div>
+                <Badge variant={alert.type === 'warning' ? 'destructive' : 'default'}>
+                  {alert.type}
+                </Badge>
               </div>
-            </div>
+            ))}
           </div>
         </CardContent>
       </Card>

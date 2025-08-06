@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -46,8 +47,6 @@ const Layout = () => (
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { user, loading } = useAuth();
   
-  console.log('ProtectedRoute - user:', !!user, 'loading:', loading);
-  
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -57,16 +56,31 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   }
   
   if (!user) {
-    console.log('No user, redirecting to login');
     return <Navigate to="/login" replace />;
   }
   
   return <>{children}</>;
 };
 
-const App = () => {
-  console.log('App component rendering');
+const AuthRedirect = ({ children }: { children: React.ReactNode }) => {
+  const { user, loading } = useAuth();
   
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-lg">Loading...</div>
+      </div>
+    );
+  }
+  
+  if (user) {
+    return <Navigate to="/dashboard" replace />;
+  }
+  
+  return <>{children}</>;
+};
+
+const App = () => {
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
@@ -83,8 +97,16 @@ const App = () => {
                   <Route path="/blog" element={<BlogPage />} />
                   <Route path="/careers" element={<CareersPage />} />
                   <Route path="/contact" element={<ContactPage />} />
-                  <Route path="/login" element={<LoginPage />} />
-                  <Route path="/signup" element={<SignupPage />} />
+                  <Route path="/login" element={
+                    <AuthRedirect>
+                      <LoginPage />
+                    </AuthRedirect>
+                  } />
+                  <Route path="/signup" element={
+                    <AuthRedirect>
+                      <SignupPage />
+                    </AuthRedirect>
+                  } />
                   <Route path="/join-waitlist" element={<JoinWaitlistPage />} />
                   <Route path="/dashboard" element={
                     <ProtectedRoute>

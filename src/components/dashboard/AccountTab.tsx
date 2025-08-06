@@ -1,9 +1,11 @@
 
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useNavigate } from "react-router-dom";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
+import { Separator } from "@/components/ui/separator";
 
 interface AccountTabProps {
   translations: any;
@@ -20,65 +22,132 @@ const AccountTab = ({
   language, 
   setLanguage 
 }: AccountTabProps) => {
-  const navigate = useNavigate();
-
   return (
     <div className="space-y-6">
+      {/* Profile Settings */}
       <Card>
         <CardHeader>
-          <CardTitle>{translations.accountSettings}</CardTitle>
-          <CardDescription>Customize your dashboard preferences and settings</CardDescription>
+          <CardTitle>Profile Information</CardTitle>
         </CardHeader>
-        <CardContent className="space-y-6">
+        <CardContent className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <Label htmlFor="firstName">First Name</Label>
+              <Input id="firstName" placeholder="Your first name" />
+            </div>
+            <div>
+              <Label htmlFor="lastName">Last Name</Label>
+              <Input id="lastName" placeholder="Your last name" />
+            </div>
+          </div>
           <div>
-            <h4 className="font-semibold mb-4">{translations.profileInfo}</h4>
-            <p className="text-sm text-muted-foreground mb-4">Update your personal and farm details</p>
-            <Button variant="outline" onClick={() => navigate('/account-settings')}>
-              Edit Profile
-            </Button>
+            <Label htmlFor="email">Email</Label>
+            <Input id="email" type="email" placeholder="your.email@example.com" />
           </div>
-          
-          <div className="space-y-4 border-t pt-6">
-            <h4 className="font-semibold">Display Preferences</h4>
-            
-            <div className="flex items-center justify-between">
-              <div className="space-y-0.5">
-                <Label className="text-sm font-medium">{translations.tempUnit}</Label>
-                <p className="text-xs text-muted-foreground">Choose temperature display format</p>
-              </div>
-              <Select value={temperatureUnit} onValueChange={(value: 'celsius' | 'fahrenheit') => setTemperatureUnit(value)}>
-                <SelectTrigger className="w-32">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="celsius">Celsius (°C)</SelectItem>
-                  <SelectItem value="fahrenheit">Fahrenheit (°F)</SelectItem>
-                </SelectContent>
-              </Select>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <Label htmlFor="farmName">Farm Name</Label>
+              <Input id="farmName" placeholder="Your farm name" />
             </div>
-
-            <div className="flex items-center justify-between">
-              <div className="space-y-0.5">
-                <Label className="text-sm font-medium">{translations.languagePref}</Label>
-                <p className="text-xs text-muted-foreground">Select your preferred language</p>
-              </div>
-              <Select value={language} onValueChange={(value: 'en' | 'fr') => setLanguage(value)}>
-                <SelectTrigger className="w-32">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="en">English</SelectItem>
-                  <SelectItem value="fr">Français</SelectItem>
-                </SelectContent>
-              </Select>
+            <div>
+              <Label htmlFor="location">Location</Label>
+              <Input id="location" placeholder="City, State" />
             </div>
           </div>
+          <Button>Save Changes</Button>
+        </CardContent>
+      </Card>
 
-          <div className="border-t pt-6">
-            <h4 className="font-semibold mb-2">Technology Subscription</h4>
-            <p className="text-sm text-muted-foreground mb-4">Premium IoT Analytics Plan - Active until July 1, 2025</p>
-            <Button variant="outline">Manage Subscription</Button>
+      {/* Preferences */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Preferences</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <Label>Temperature Unit</Label>
+              <p className="text-sm text-muted-foreground">
+                Choose your preferred temperature display
+              </p>
+            </div>
+            <Select
+              value={temperatureUnit}
+              onValueChange={(value: 'celsius' | 'fahrenheit') => setTemperatureUnit(value)}
+            >
+              <SelectTrigger className="w-32">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="celsius">Celsius</SelectItem>
+                <SelectItem value="fahrenheit">Fahrenheit</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
+
+          <Separator />
+
+          <div className="flex items-center justify-between">
+            <div>
+              <Label>Language</Label>
+              <p className="text-sm text-muted-foreground">
+                Select your preferred language
+              </p>
+            </div>
+            <Select
+              value={language}
+              onValueChange={(value: 'en' | 'fr') => setLanguage(value)}
+            >
+              <SelectTrigger className="w-32">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="en">English</SelectItem>
+                <SelectItem value="fr">Français</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <Separator />
+
+          <div className="flex items-center justify-between">
+            <div>
+              <Label>Email Notifications</Label>
+              <p className="text-sm text-muted-foreground">
+                Receive email alerts for important updates
+              </p>
+            </div>
+            <Switch defaultChecked />
+          </div>
+
+          <div className="flex items-center justify-between">
+            <div>
+              <Label>SMS Alerts</Label>
+              <p className="text-sm text-muted-foreground">
+                Get text messages for urgent farm alerts
+              </p>
+            </div>
+            <Switch />
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Data Management */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Data Management</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <Button variant="outline" className="w-full justify-start">
+            Export Farm Data
+          </Button>
+          <Button variant="outline" className="w-full justify-start">
+            Download Reports
+          </Button>
+          <Separator />
+          <Button variant="destructive" className="w-full">
+            Delete Account
+          </Button>
         </CardContent>
       </Card>
     </div>

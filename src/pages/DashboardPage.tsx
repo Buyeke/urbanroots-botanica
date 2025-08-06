@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -10,10 +10,6 @@ import {
   LogOut, 
   User, 
   Bell, 
-  Droplet, 
-  Thermometer, 
-  BarChart3,
-  ChevronDown,
   AlertTriangle,
   CheckCircle,
   Info
@@ -22,7 +18,6 @@ import { useAuth } from "@/hooks/useAuth";
 import DashboardTabs from "@/components/dashboard/DashboardTabs";
 
 const DashboardPage = () => {
-  const [authChecked, setAuthChecked] = useState(false);
   const [isSigningOut, setIsSigningOut] = useState(false);
   const [notificationsOpen, setNotificationsOpen] = useState(false);
   const [temperatureUnit, setTemperatureUnit] = useState<'celsius' | 'fahrenheit'>('celsius');
@@ -32,31 +27,8 @@ const DashboardPage = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  // Handle auth check with timeout
-  useEffect(() => {
-    const timeout = setTimeout(() => {
-      if (!authChecked) {
-        setAuthChecked(true);
-        if (!user) {
-          navigate('/login', { replace: true });
-        }
-      }
-    }, 3000);
-
-    if (!loading) {
-      setAuthChecked(true);
-      clearTimeout(timeout);
-      
-      if (!user) {
-        navigate('/login', { replace: true });
-      }
-    }
-
-    return () => clearTimeout(timeout);
-  }, [loading, user, navigate, authChecked]);
-
-  // Show loading only briefly
-  if (!authChecked && loading) {
+  // Show loading state
+  if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center space-y-4">
@@ -67,14 +39,10 @@ const DashboardPage = () => {
     );
   }
 
-  if (!user && authChecked) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center space-y-4">
-          <div className="text-lg">Redirecting to login...</div>
-        </div>
-      </div>
-    );
+  // Redirect if not authenticated
+  if (!user) {
+    navigate('/login', { replace: true });
+    return null;
   }
 
   const handleSignOut = async () => {
@@ -112,37 +80,6 @@ const DashboardPage = () => {
     size: "40 acres across multiple smallholder plots",
     ownerName: `${user?.user_metadata?.first_name || 'Farm'} ${user?.user_metadata?.last_name || 'Manager'}`.trim(),
   };
-
-  const insights = [
-    {
-      title: "Soil Moisture",
-      value: "68%",
-      status: "optimal",
-      change: "+5%",
-      icon: <Droplet className="h-4 w-4" />
-    },
-    {
-      title: "Temperature",
-      value: convertTemp(72),
-      status: "good",
-      change: temperatureUnit === 'celsius' ? "+1°C" : "+2°F",
-      icon: <Thermometer className="h-4 w-4" />
-    },
-    {
-      title: "Expected Yield",
-      value: "125%",
-      status: "excellent",
-      change: "+15%",
-      icon: <BarChart3 className="h-4 w-4" />
-    },
-    {
-      title: "Growth Stage",
-      value: "Flowering",
-      status: "on-track",
-      change: "On schedule",
-      icon: <Leaf className="h-4 w-4" />
-    }
-  ];
 
   const alerts = [
     {
@@ -314,7 +251,7 @@ const DashboardPage = () => {
           </div>
         </div>
 
-        {/* Dashboard Tabs with all functionality including Soil Analysis */}
+        {/* Dashboard Tabs */}
         <DashboardTabs
           translations={translations}
           farmData={farmData}
