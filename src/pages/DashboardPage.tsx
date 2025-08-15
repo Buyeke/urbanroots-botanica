@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -15,7 +14,9 @@ import {
   Info
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
+import { useIsMobile } from "@/hooks/use-mobile";
 import DashboardTabs from "@/components/dashboard/DashboardTabs";
+import MobileDashboardHeader from "@/components/dashboard/MobileDashboardHeader";
 
 const DashboardPage = () => {
   const [isSigningOut, setIsSigningOut] = useState(false);
@@ -26,6 +27,7 @@ const DashboardPage = () => {
   const { user, loading, signOut, isDemoAccount } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const isMobile = useIsMobile();
 
   // Show loading state
   if (loading) {
@@ -146,6 +148,47 @@ const DashboardPage = () => {
     account: "Account"
   };
 
+  // Mobile Layout
+  if (isMobile) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-50">
+        <MobileDashboardHeader farmData={farmData} alerts={alerts} />
+
+        {/* Mobile Content */}
+        <main className="px-4 py-4 pb-20">
+          {/* Farm Overview - Condensed for Mobile */}
+          <div className="mb-6">
+            <div className="bg-white rounded-lg p-4 shadow-sm">
+              <div className="flex justify-between items-start mb-3">
+                <div className="min-w-0 flex-1">
+                  <h2 className="text-lg font-bold text-gray-900 truncate">{farmData.name}</h2>
+                  <p className="text-sm text-gray-600 truncate">{farmData.location}</p>
+                  <p className="text-xs text-gray-500 mt-1">{farmData.size}</p>
+                </div>
+                <Badge variant="outline" className="bg-green-50 text-green-700 text-xs ml-2 flex-shrink-0">
+                  Live
+                </Badge>
+              </div>
+            </div>
+          </div>
+
+          {/* Mobile Dashboard Tabs */}
+          <DashboardTabs
+            translations={translations}
+            farmData={farmData}
+            alerts={alerts}
+            recentOrders={recentOrders}
+            temperatureUnit={temperatureUnit}
+            setTemperatureUnit={setTemperatureUnit}
+            language={language}
+            setLanguage={setLanguage}
+          />
+        </main>
+      </div>
+    );
+  }
+
+  // Desktop Layout
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-50">
       {/* Demo Account Banner */}
@@ -157,7 +200,7 @@ const DashboardPage = () => {
         </div>
       )}
 
-      {/* Header */}
+      {/* Desktop Header */}
       <header className="bg-white/80 backdrop-blur-sm border-b border-gray-200 sticky top-0 z-50">
         <div className="container mx-auto px-4 py-4">
           <div className="flex justify-between items-center">
@@ -233,7 +276,7 @@ const DashboardPage = () => {
         </div>
       </header>
 
-      {/* Main Content */}
+      {/* Desktop Main Content */}
       <main className="container mx-auto px-4 py-8">
         {/* Farm Overview */}
         <div className="mb-8">
