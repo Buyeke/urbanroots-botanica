@@ -1,11 +1,11 @@
-
 import { Link } from "react-router-dom";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Leaf, Facebook, Twitter, Instagram, Linkedin } from "lucide-react";
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/hooks/use-toast"; // Shadcn toast
+import { useToast } from "@/hooks/use-toast";
+import { validateEmail, sanitizeInput, createSecureErrorMessage, rateLimit } from "@/utils/security";
 
 const Footer = () => {
   const [email, setEmail] = useState("");
@@ -14,41 +14,57 @@ const Footer = () => {
 
   const handleSubscribe = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (!email) {
+    
+    // Rate limiting check
+    if (!rateLimit('newsletter-subscribe', 3, 300000)) { // 3 requests per 5 minutes
       toast({
-        title: "Email Required",
-        description: "Please enter your email address to subscribe.",
+        title: "Too Many Requests",
+        description: "Please wait before subscribing again.",
         variant: "destructive",
       });
       return;
     }
+
+    const sanitizedEmail = sanitizeInput(email);
+    
+    if (!validateEmail(sanitizedEmail)) {
+      toast({
+        title: "Invalid Email",
+        description: "Please enter a valid email address.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setIsLoading(true);
 
     try {
       const { data, error } = await supabase.functions.invoke("subscribe-newsletter", {
-        body: { email },
+        body: { email: sanitizedEmail },
       });
 
       if (error) {
-        console.error("Subscription error:", error);
+        console.error("Newsletter subscription error:", error);
+        const secureMessage = createSecureErrorMessage(error);
         toast({
           title: "Subscription Failed",
-          description: error.message || "Could not subscribe. Please try again.",
+          description: secureMessage,
           variant: "destructive",
         });
       } else {
-        console.log("Subscription success data:", data);
+        console.log("Newsletter subscription success:", data);
         toast({
           title: "Subscribed!",
-          description: data.message || "You've successfully subscribed to our newsletter.",
+          description: "You've successfully subscribed to our newsletter.",
         });
-        setEmail(""); // Clear input on success
+        setEmail("");
       }
     } catch (err: any) {
-      console.error("Unexpected error during subscription:", err);
+      console.error("Unexpected newsletter subscription error:", err);
+      const secureMessage = createSecureErrorMessage(err);
       toast({
         title: "Error",
-        description: "An unexpected error occurred. Please try again.",
+        description: secureMessage,
         variant: "destructive",
       });
     } finally {
@@ -146,4 +162,3 @@ const Footer = () => {
 };
 
 export default Footer;
-

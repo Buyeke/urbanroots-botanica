@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -8,7 +7,8 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Link, useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { Leaf, Eye, EyeOff, Loader2 } from "lucide-react";
-import { useAuth } from "@/hooks/useAuth";
+import { useSecureAuth } from "@/hooks/useSecureAuth";
+import { validateEmail, sanitizeInput } from "@/utils/security";
 
 const SignupPage = () => {
   const [formData, setFormData] = useState({
@@ -27,7 +27,7 @@ const SignupPage = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [passwordStrength, setPasswordStrength] = useState({ score: 0, feedback: "" });
   const { toast } = useToast();
-  const { signUp, user, loading } = useAuth();
+  const { secureSignUp, user, loading } = useSecureAuth();
   const navigate = useNavigate();
 
   // Redirect if already logged in
@@ -37,7 +37,7 @@ const SignupPage = () => {
     }
   }, [user, loading, navigate]);
 
-  // Password strength checker
+  // Enhanced password strength checker
   useEffect(() => {
     if (formData.password) {
       const checkPasswordStrength = (password) => {
@@ -49,6 +49,16 @@ const SignupPage = () => {
         if (/[A-Z]/.test(password)) score++;
         if (/[0-9]/.test(password)) score++;
         if (/[^A-Za-z0-9]/.test(password)) score++;
+
+        // Check for common patterns
+        const commonPatterns = ['password', '123456', 'qwerty', 'admin'];
+        const hasCommonPattern = commonPatterns.some(pattern => 
+          password.toLowerCase().includes(pattern)
+        );
+
+        if (hasCommonPattern) {
+          score = Math.max(0, score - 2);
+        }
 
         switch (score) {
           case 0:
@@ -96,6 +106,18 @@ const SignupPage = () => {
   }
 
   const validateForm = () => {
+    // Enhanced validation with security checks
+    const sanitizedEmail = sanitizeInput(formData.email);
+    
+    if (!validateEmail(sanitizedEmail)) {
+      toast({
+        title: "Invalid email",
+        description: "Please enter a valid email address.",
+        variant: "destructive"
+      });
+      return false;
+    }
+
     if (formData.password !== formData.confirmPassword) {
       toast({
         title: "Password mismatch",
@@ -105,10 +127,10 @@ const SignupPage = () => {
       return false;
     }
 
-    if (formData.password.length < 8) {
+    if (passwordStrength.score < 3) {
       toast({
-        title: "Password too short",
-        description: "Password must be at least 8 characters long.",
+        title: "Password too weak",
+        description: "Please create a stronger password with uppercase, lowercase, numbers, and symbols.",
         variant: "destructive"
       });
       return false;
@@ -123,7 +145,7 @@ const SignupPage = () => {
       return false;
     }
 
-    if (!formData.firstName.trim() || !formData.lastName.trim()) {
+    if (!sanitizeInput(formData.firstName).trim() || !sanitizeInput(formData.lastName).trim()) {
       toast({
         title: "Name required",
         description: "Please enter your first and last name.",
@@ -146,53 +168,27 @@ const SignupPage = () => {
 
     try {
       const metadata = {
-        first_name: formData.firstName.trim(),
-        last_name: formData.lastName.trim(),
-        farm_name: formData.farmName.trim() || null,
-        location: formData.location.trim(),
+        first_name: sanitizeInput(formData.firstName).trim(),
+        last_name: sanitizeInput(formData.lastName).trim(),
+        farm_name: sanitizeInput(formData.farmName).trim() || null,
+        location: sanitizeInput(formData.location).trim(),
         agree_updates: formData.agreeUpdates
       };
 
-      const result = await signUp(formData.email.trim().toLowerCase(), formData.password, metadata);
+      const result = await secureSignUp(
+        sanitizeInput(formData.email).trim().toLowerCase(), 
+        formData.password, 
+        metadata
+      );
       
-      if (result?.error) {
-        if (result.error.message.includes("already registered") || result.error.message.includes("User already registered")) {
-          toast({
-            title: "Account exists",
-            description: "This email is already registered. Please try logging in instead.",
-            variant: "destructive"
-          });
-        } else if (result.error.message.includes("Invalid email")) {
-          toast({
-            title: "Invalid email",
-            description: "Please enter a valid email address.",
-            variant: "destructive"
-          });
-        } else if (result.error.message.includes("Password")) {
-          toast({
-            title: "Password error",
-            description: result.error.message || "Please check your password requirements.",
-            variant: "destructive"
-          });
-        } else {
-          toast({
-            title: "Signup failed",
-            description: result.error.message || "Please try again.",
-            variant: "destructive"
-          });
-        }
-      } else {
+      if (!result.error) {
         toast({
           title: "Account created!",
           description: "Welcome to Urban Roots. Please check your email to verify your account.",
         });
       }
     } catch (error) {
-      toast({
-        title: "Signup failed",
-        description: error?.message || "An unexpected error occurred. Please try again.",
-        variant: "destructive"
-      });
+      console.error('Signup error:', error);
     } finally {
       setIsLoading(false);
     }
