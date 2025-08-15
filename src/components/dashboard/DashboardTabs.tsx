@@ -32,7 +32,7 @@ const DashboardTabs = ({
       <TabsList className="grid w-full lg:w-fit grid-cols-5">
         <TabsTrigger value="insights">{translations.farmInsights}</TabsTrigger>
         <TabsTrigger value="orders">{translations.orders}</TabsTrigger>
-        <TabsTrigger value="soil-analysis">Soil Analysis</TabsTrigger>
+        <TabsTrigger value="soil-analysis">AI Analysis</TabsTrigger>
         <TabsTrigger value="support">{translations.support}</TabsTrigger>
         <TabsTrigger value="account">{translations.account}</TabsTrigger>
       </TabsList>
